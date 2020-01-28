@@ -40,3 +40,16 @@ func GetAwsSession(region string, awsAccessKeyId string, awsSecretAccessKey stri
 	return sess, nil
 
 }
+
+// Gets the aws session to use for looking up credstash secrets falling back to the environment config
+func GetAwsSessionFromEnv() (*session.Session, error){
+	sess, err := session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return sess, nil
+}

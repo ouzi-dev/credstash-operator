@@ -124,7 +124,7 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 
 	// Define a new Secret object
 	// TODO handle error
-	secret, _ := r.newSecretForCR(instance)
+	secret, _ := r.secretForCR(instance)
 
 	// Set CredstashSecret instance as the owner and controller
 	if err := controllerutil.SetControllerReference(instance, secret, r.scheme); err != nil {
@@ -152,42 +152,26 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 	return reconcile.Result{}, nil
 }
 
-// newSecretForCR returns a busybox pod with the same name/namespace as the cr
-func (r *ReconcileCredstashSecret) newSecretForCR(cr *credstashv1alpha1.CredstashSecret) (*corev1.Secret, error) {
-	//TODO extract all this secret logic to its own method
-	//TODO allow support for default controller level credentials as a catch-all
-	awsAccessKeyIdSecret := &corev1.Secret{}
-	err := r.client.Get(context.TODO(), types.NamespacedName{Name: cr.Spec.AWSConfig.Credentials.AWSAccessKeyId.Name, Namespace: cr.Namespace}, awsAccessKeyIdSecret)
+// secretForCR returns a secret the same name/namespace as the cr
+func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSecret) (*corev1.Secret, error) {
+	awsSession, err := aws.GetAwsSessionFromEnv()
 	if err != nil {
+		//TODO handle error / log error
 		return nil, err
 	}
 
-	awsAccessKey := string(awsAccessKeyIdSecret.Data[cr.Spec.AWSConfig.Credentials.AWSAccessKeyId.Key])
-
-	awsSecretAccessKeySecret := &corev1.Secret{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: cr.Spec.AWSConfig.Credentials.AWSSecretAccessKey.Name, Namespace: cr.Namespace}, awsSecretAccessKeySecret)
-	if err != nil {
-		return nil, err
-	}
-
-	awsSecretAccessKey := string(awsAccessKeyIdSecret.Data[cr.Spec.AWSConfig.Credentials.AWSSecretAccessKey.Key])
-
-	awsSession, err := aws.GetAwsSession(cr.Spec.AWSConfig.Region, awsAccessKey, awsSecretAccessKey)
 	credstashSecretGetter := credstash.NewHelper(awsSession)
-
 	credstashSecretsValueMap := credstashSecretGetter.GetCredstashSecretsForCredstashSecretDefs(cr.Spec.Secrets)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return &corev1.Secret{
+	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cr.Name,
 			Namespace: cr.Namespace,
 		},
 		StringData: credstashSecretsValueMap,
-	}, nil
+	}
+
+	return secret, nil
 }
 
 func setupPredicateFuncs() predicate.Funcs {
