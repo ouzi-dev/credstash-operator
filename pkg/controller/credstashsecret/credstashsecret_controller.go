@@ -124,8 +124,11 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 	}
 
 	// Define a new Secret object
-	// TODO handle error
-	secret, _ := r.secretForCR(instance)
+	secret, err := r.secretForCR(instance)
+	if err != nil {
+		reqLogger.Error(err, "Failed fetching secret from credstash")
+		return reconcile.Result{}, err
+	}
 
 	// Set CredstashSecret instance as the owner and controller
 	if err := controllerutil.SetControllerReference(instance, secret, r.scheme); err != nil {
@@ -170,12 +173,14 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSecret) (*corev1.Secret, error) {
 	awsSession, err := aws.GetAwsSessionFromEnv()
 	if err != nil {
-		//TODO handle error / log error
 		return nil, err
 	}
 
 	credstashSecretGetter := credstash.NewHelper(awsSession)
-	credstashSecretsValueMap := credstashSecretGetter.GetCredstashSecretsForCredstashSecretDefs(cr.Spec.Secrets)
+	credstashSecretsValueMap, err := credstashSecretGetter.GetCredstashSecretsForCredstashSecretDefs(cr.Spec.Secrets)
+	if err != nil {
+		return nil, err
+	}
 
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
