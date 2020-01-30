@@ -7,9 +7,9 @@ setup:
 
 .PHONY: generate
 generate: setup
-	operator-sdk generate k8s
-	operator-sdk generate crds
-	./bin/openapi-gen --logtostderr=true \
+	@operator-sdk generate k8s
+	@operator-sdk generate crds
+	@./bin/openapi-gen --logtostderr=true \
 	    -o "" -i ./pkg/apis/credstash/v1alpha1 \
 	    -O zz_generated.openapi \
 	    -p ./pkg/apis/credstash/v1alpha1 \
