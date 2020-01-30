@@ -21,6 +21,7 @@ import (
 	"github.com/ouzi-dev/credstash-operator/pkg/aws"
 	"github.com/ouzi-dev/credstash-operator/pkg/credstash"
 	"github.com/ouzi-dev/credstash-operator/pkg/flags"
+	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
@@ -40,7 +41,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-const LabelNameForSelector = "controllerInstance"
+const LabelNameForSelector = "operatorInstance"
 
 var log = logf.Log.WithName("controller_credstashsecret")
 
@@ -134,6 +135,8 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 	// Check if this Secret already exists
 	found := &corev1.Secret{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: secret.Name, Namespace: secret.Namespace}, found)
+
+	// Create new secret if it doesn't exist
 	if err != nil && errors.IsNotFound(err) {
 		reqLogger.Info("Creating a new Secret", "Secret.Namespace", secret.Namespace, "Secret.Name", secret.Name)
 		err = r.client.Create(context.TODO(), secret)
@@ -141,14 +144,25 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 			return reconcile.Result{}, err
 		}
 
-		// Pod created successfully - don't requeue
+		// Secret created successfully - don't requeue
 		return reconcile.Result{}, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Secret already exists", "Secret.Namespace", found.Namespace, "Secret.Name", found.Name)
+	// Secret is out of date with credstash data
+	if !reflect.DeepEqual(secret.Data, found.Data) {
+		reqLogger.Info("Updating Secret because contents have changed", "Secret.Namespace", secret.Namespace, "Secret.Name", secret.Name)
+		err = r.client.Update(context.TODO(), secret)
+		if err != nil {
+			return reconcile.Result{}, err
+		} else {
+			return reconcile.Result{}, nil
+		}
+	}
+
+	// Secret already exists - don't requeue
+	reqLogger.Info("Skip reconcile: Secret already exists and is up to date", "Secret.Namespace", found.Namespace, "Secret.Name", found.Name)
 	return reconcile.Result{}, nil
 }
 
@@ -168,12 +182,13 @@ func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSe
 			Name:      cr.Name,
 			Namespace: cr.Namespace,
 		},
-		StringData: credstashSecretsValueMap,
+		Data: credstashSecretsValueMap,
 	}
 
 	return secret, nil
 }
 
+// setupPredicateFuncs makes sure that we only watch resources that match the correct label selector that we want
 func setupPredicateFuncs() predicate.Funcs {
 	return predicate.Funcs{
 		CreateFunc: func(e event.CreateEvent) bool {
