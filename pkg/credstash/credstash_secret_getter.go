@@ -21,7 +21,7 @@ const (
 
 var log = logf.Log.WithName("credstashsecret_getter")
 
-func NewHelper(awsSession *session.Session) SecretGetter {
+func NewSecretGetter(awsSession *session.Session) SecretGetter {
 	unicreds.SetKMSConfig(awsSession.Config)
 	unicreds.SetDynamoDBConfig(awsSession.Config)
 	return &secretGetter{}
