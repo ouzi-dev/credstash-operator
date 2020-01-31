@@ -70,9 +70,13 @@ func main() {
 	// implementing the logr.Logger interface. This logger will
 	// be propagated through the whole operator, generating
 	// uniform and structured logs.
-	logf.SetLogger(zap.Logger())
 
-	log.Info(fmt.Sprintf("hahja: %s", flags.SelectorLabelValue))
+	//Set the default logging time encoding to iso8601 unless otherwise specified
+	timeEncodingFlagValue := zap.FlagSet().Lookup("zap-time-encoding").Value.String()
+	if timeEncodingFlagValue == "" {
+		_ = zap.FlagSet().Set("zap-time-encoding", "iso8601")
+	}
+	logf.SetLogger(zap.Logger())
 
 	printVersion()
 
