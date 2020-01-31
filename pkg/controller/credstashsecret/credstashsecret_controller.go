@@ -49,12 +49,25 @@ var log = logf.Log.WithName("controller_credstashsecret")
 // Add creates a new CredstashSecret Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
-	return add(mgr, newReconciler(mgr))
+	reconciler, err := newReconciler(mgr)
+	if err != nil {
+		return err
+	}
+	return add(mgr, reconciler)
 }
 
 // newReconciler returns a new reconcile.Reconciler
-func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileCredstashSecret{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
+	awsSession, err := aws.GetAwsSessionFromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	return &ReconcileCredstashSecret{
+		client: mgr.GetClient(),
+		scheme: mgr.GetScheme(),
+		credstashSecretGetter: credstash.NewSecretGetter(awsSession),
+	}, nil
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -74,7 +87,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	// TODO(user): Modify this to be the types you create that are owned by the primary resource
 	// Watch for changes to secondary resource Pods and requeue the owner CredstashSecret
 	err = c.Watch(&source.Kind{Type: &corev1.Secret{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
@@ -96,12 +108,11 @@ type ReconcileCredstashSecret struct {
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
 	scheme *runtime.Scheme
+	credstashSecretGetter credstash.SecretGetter
 }
 
 // Reconcile reads that state of the cluster for a CredstashSecret object and makes changes based on the state read
 // and what is in the CredstashSecret.Spec
-// TODO(user): Modify this Reconcile function to implement your Controller logic.  This example creates
-// a Pod as an example
 // Note:
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
@@ -171,13 +182,7 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 
 // secretForCR returns a secret the same name/namespace as the cr
 func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSecret) (*corev1.Secret, error) {
-	awsSession, err := aws.GetAwsSessionFromEnv()
-	if err != nil {
-		return nil, err
-	}
-
-	credstashSecretGetter := credstash.NewHelper(awsSession)
-	credstashSecretsValueMap, err := credstashSecretGetter.GetCredstashSecretsForCredstashSecretDefs(cr.Spec.Secrets)
+	credstashSecretsValueMap, err := r.credstashSecretGetter.GetCredstashSecretsForCredstashSecretDefs(cr.Spec.Secrets)
 	if err != nil {
 		return nil, err
 	}

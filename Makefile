@@ -14,6 +14,7 @@ generate: setup
 	    -O zz_generated.openapi \
 	    -p ./pkg/apis/credstash/v1alpha1 \
 	    -h ./hack/boilerplate.go.txt -r "-"
+	@go generate ./...
 
 .PHONY: semantic-release
 semantic-release:

@@ -1,7 +1,7 @@
 package credstash
 
 //nolint
-//go:generate mockgen -destination=../mocks/mock_credential_helper.go -package=mocks github.com/singularityconsulting/hoolio/internal/credentials EnvironmentCredentialHelper
+//go:generate mockgen -destination=../mocks/mock_credstash_secret_getter.go -package=mocks github.com/ouzi-dev/credstash-operator/pkg/credstash SecretGetter
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
@@ -21,7 +21,7 @@ const (
 
 var log = logf.Log.WithName("credstashsecret_getter")
 
-func NewHelper(awsSession *session.Session) SecretGetter {
+func NewSecretGetter(awsSession *session.Session) SecretGetter {
 	unicreds.SetKMSConfig(awsSession.Config)
 	unicreds.SetDynamoDBConfig(awsSession.Config)
 	return &secretGetter{}
