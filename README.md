@@ -1,10 +1,18 @@
-# bigbang
+# credstash-operator 
 
 ## Overview
 
-Repository with the default setup when creating a public ouzi repo
+credstash-operator is a Kubernetes operator that creates Kubernetes secrets from credstash secrets
 
-## Adding Prow Jobs
+## Deployment
+### Prerequisites
 
-To add a job for this repo, navigate to [test-infra](https://github.com/ouzi-dev/test-infra/tree/master/config/jobs/ouzi-dev) and add a new file for this repo with the needed jobs. If one already exists, just update it as needed.
+The controller requires AWS credentials to be set before deploying it. This is accomplished by creating a secret with the following keys:
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY
+* AWS_REGION
 
+For example running the following will create an appropriate secret in the `credstash` namespace:
+```
+kubectl create secret generic aws-credentials --from-literal=AWS_ACCESS_KEY_ID=access_key --from-literal=AWS_SECRET_ACCESS_KEY=secret_access_key --from-literal=AWS_REGION=us-west-2 --namespace=credstash
+```

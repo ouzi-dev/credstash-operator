@@ -11,8 +11,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.4.0
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
-	k8s.io/api v0.17.0
-	k8s.io/apimachinery v0.17.0
+	k8s.io/api v0.17.1
+	k8s.io/apimachinery v0.17.1
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20191107075043-30be4d16710a
 	sigs.k8s.io/controller-runtime v0.4.0
@@ -20,6 +20,7 @@ require (
 
 // Pinned to kubernetes-1.17.0
 replace (
+	github.com/openshift/api => github.com/openshift/api v0.0.0-20200117162508-e7ccdda6ba67
 	k8s.io/api => k8s.io/api v0.17.0
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.17.0
 	k8s.io/apimachinery => k8s.io/apimachinery v0.17.0
