@@ -7,29 +7,7 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - pods
-  - services
-  - services/finalizers
-  - endpoints
-  - persistentvolumeclaims
-  - events
-  - configmaps
   - secrets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  - daemonsets
-  - replicasets
-  - statefulsets
   verbs:
   - create
   - delete
@@ -53,19 +31,6 @@ rules:
   - deployments/finalizers
   verbs:
   - update
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-- apiGroups:
-  - apps
-  resources:
-  - replicasets
-  - deployments
-  verbs:
-  - get
 - apiGroups:
   - credstash.ouzi.tech
   resources:
