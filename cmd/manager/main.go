@@ -80,12 +80,6 @@ func main() {
 
 	printVersion()
 
-	namespace, err := k8sutil.GetWatchNamespace()
-	if err != nil {
-		log.Error(err, "Failed to get watch namespace")
-		os.Exit(1)
-	}
-
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -101,11 +95,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create a new Cmd to provide shared dependencies and start components
-	mgr, err := manager.New(cfg, manager.Options{
-		Namespace:          namespace,
+	managerOptions := manager.Options{
 		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort),
-	})
+	}
+
+	namespace, err := k8sutil.GetWatchNamespace()
+	if err != nil {
+		log.Info("No namespace specified. Watching secrets in all namespaces")
+	} else {
+		managerOptions.Namespace = namespace
+	}
+
+	// Create a new Cmd to provide shared dependencies and start components
+	mgr, err := manager.New(cfg, managerOptions)
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
