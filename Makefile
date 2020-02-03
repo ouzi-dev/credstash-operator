@@ -25,10 +25,12 @@ GIT_TAG    := $(shell git describe --tags --abbrev=0 --exact-match 2>/dev/null)
 HAS_GOX := $(shell command -v gox;)
 HAS_GIT := $(shell command -v git;)
 GIT_DIRTY  = $(shell test -n "`git status --porcelain`" && echo "dirty" || echo "clean")
-GOLANGCI_LINT_VERSION := v1.21.0
-HAS_GOLANGCI_LINT := $(shell command -v golangci-lint;)
 HAS_GO_IMPORTS := $(shell command -v goimports;)
 HAS_GO_MOCKGEN := $(shell command -v mockgen;)
+HAS_GOLANGCI_LINT := $(shell command -v golangci-lint;)
+
+GOLANGCI_LINT_VERSION := v1.23.1
+GOLANGCI_VERSION_CHECK := $(shell golangci-lint --version | grep -oh $(GOLANGCI_LINT_VERSION);)
 
 DOCKER_REPO := quay.io/ouzi/credstash-operator
 
@@ -53,11 +55,25 @@ endif
 
 export PATH := ./bin:$(PATH)
 
-# Install all the build and lint dependencies
-setup:
+.PHONY: setup-lint
+setup-lint:
+	@echo "bootstrap lint..."
 ifndef HAS_GOLANGCI_LINT
-	GOPROXY=direct GOSUMDB=off $(GO) get -u github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+	@echo "golangci-lint $(GOLANGCI_LINT_VERSION) not found..."
+	@GOPROXY=direct GOSUMDB=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+else
+	@echo "golangci-lint found, checking version..."
+ifeq ($(GOLANGCI_VERSION_CHECK), )
+	@echo "found different version, installing golangci-lint $(GOLANGCI_LINT_VERSION)..."
+	@GOPROXY=direct GOSUMDB=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+else
+	@echo "golangci-lint version $(GOLANGCI_VERSION_CHECK) found!"
 endif
+endif
+
+# Install all the build and lint dependencies
+.PHONY: setup
+setup: setup-lint
 ifndef HAS_GOX
 	$(GO) get -u github.com/mitchellh/gox
 endif
@@ -69,8 +85,6 @@ ifndef HAS_GO_MOCKGEN
 	$(GO) install github.com/golang/mock/mockgen
 endif
 	@which ./bin/openapi-gen > /dev/null || go build -o ./bin/openapi-gen k8s.io/kube-openapi/cmd/openapi-gen
-
-.PHONY: setup
 
 test:
 	$(GO) test $(TEST_OPTIONS) \
