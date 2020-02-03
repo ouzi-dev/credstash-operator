@@ -1,5 +1,6 @@
 node_modules/
 # Temporary Build Files
+_dist/
 build/_output
 build/_test
 bin/
