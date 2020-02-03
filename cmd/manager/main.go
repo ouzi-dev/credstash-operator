@@ -8,6 +8,7 @@ import (
 	"github.com/ouzi-dev/credstash-operator/pkg/flags"
 	"os"
 	"runtime"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -37,6 +38,8 @@ var (
 	metricsHost               = "0.0.0.0"
 	metricsPort         int32 = 8383
 	operatorMetricsPort int32 = 8686
+	healthProbeHost     	  = "0.0.0.0"
+	healthProbePort     int32 = 8080
 )
 var log = logf.Log.WithName("cmd")
 
@@ -97,6 +100,7 @@ func main() {
 
 	managerOptions := manager.Options{
 		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort),
+		HealthProbeBindAddress: fmt.Sprintf("%s:%d", healthProbeHost, healthProbePort),
 	}
 
 	namespace, err := k8sutil.GetWatchNamespace()
@@ -124,6 +128,16 @@ func main() {
 	// Setup all Controllers
 	if err := controller.AddToManager(mgr); err != nil {
 		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	if err = mgr.AddHealthzCheck("health", healthz.Ping); err != nil {
+		log.Error(err, "Error starting health check service")
+		os.Exit(1)
+	}
+
+	if err = mgr.AddReadyzCheck("ready", healthz.Ping); err != nil {
+		log.Error(err, "Error starting readiness check service")
 		os.Exit(1)
 	}
 
