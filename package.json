@@ -63,7 +63,6 @@
     ],
     "preset": "angular",
     "branches": [
-      "feat/sem-release",
       "master"
     ],
     "tagFormat": "v${version}",
