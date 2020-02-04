@@ -31,3 +31,21 @@ Deploy the operator:
 ```
 kubectl apply -f deploy/operator.yaml -n credstash
 ```
+
+### Deploying via helm chart
+
+#### Without existing credentials secret
+```
+helm upgrade --install credstash deploy/helm/credstash-operator \
+    -n credstash \
+    --set awsCredentials.create=true \
+    --set awsCredentials.awsAccessKeyId=access_key \
+    --set awsCredentials.awsSecretAccessKey=secret_access_key \
+    --set awsCredentials.awsRegion=region
+```
+#### With existing credentials secret
+```
+helm upgrade --install credstash deploy/helm/credstash-operator \
+    -n credstash \
+    --set awsCredentials.secretName=aws-credentials
+```
