@@ -180,12 +180,12 @@ helm-package: clean
 	--version=$(VERSION) \
 	--app-version=$(VERSION) \
 	--dependency-update \
-	--destination deploy/helm/$(CHART_DIST) \
+	--destination $(CHART_DIST) \
 	$(CHART_PATH)/$(CHART_NAME)
 
 .PHONY: helm-lint
 helm-lint:
-	helm lint ./deploy/helm/$(CHART_NAME)
+	helm lint $(CHART_PATH)/$(CHART_NAME)
 
 .PHONY: semantic-release
 semantic-release:
