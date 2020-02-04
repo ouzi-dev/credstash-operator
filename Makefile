@@ -136,7 +136,7 @@ docker-push: docker-build
 	@docker push $(DOCKER_REPO):${VERSION}
 
 .PHONY: clean
-clean:
+clean: helm-clean
 	@rm -rf $(BINDIR) ./_dist
 
 .PHONY: generate
@@ -175,7 +175,7 @@ helm-validate:
 	$(CHART_PATH)/${CHART_NAME}
 
 .PHONY: helm-package
-helm-package: clean
+helm-package: helm-clean
 	@helm package \
 	--version=$(VERSION) \
 	--app-version=$(VERSION) \
