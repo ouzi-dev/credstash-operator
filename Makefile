@@ -177,7 +177,8 @@ helm-validate:
 .PHONY: helm-package
 helm-package: clean
 	@helm package \
-	--version=$(CHART_VERSION) \
+	--version=$(VERSION) \
+	--app-version=$(VERSION) \
 	--dependency-update \
 	--destination deploy/helm/$(CHART_DIST) \
 	$(CHART_PATH)/$(CHART_NAME)
