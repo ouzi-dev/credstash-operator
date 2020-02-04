@@ -1,19 +1,19 @@
 {
-  "name": "bigbang",
-  "description": "__A template repository for creating ouzi repos__",
+  "name": "credstash-operator",
+  "description": "__A kubernetes operator that creates k8s secrets from credstash secrets__",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ouzi-dev/bigbang.git"
+    "url": "https://github.com/ouzi-dev/credstash-operator.git"
   },
-  "author": "aouzounis",
+  "author": "givanov",
   "devDependencies": {
-    "@semantic-release/commit-analyzer": "^6.3.3",
-    "@semantic-release/exec": "^3.3.8",
+    "@semantic-release/commit-analyzer": "^6.3.0",
+    "@semantic-release/exec": "^3.3.2",
     "@semantic-release/github": "^5.2.10",
-    "@semantic-release/release-notes-generator": "^7.3.5",
+    "@semantic-release/release-notes-generator": "^7.1.4",
     "fstream": "^1.0.12",
-    "semantic-release": "^16.0.0-beta.46",
-    "tar": "^5.0.5",
+    "semantic-release": "^16.0.2",
+    "tar": "^4.4.9",
     "env-ci": "4.1.1"
   },
   "release": {
@@ -43,15 +43,28 @@
       ],
       "@semantic-release/release-notes-generator",
       [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "make docker-push helm-package VERSION=v${nextRelease.version}"
+        }
+      ],
+      [
         "@semantic-release/github",
         {
+          "assets": [
+            {
+              "path": "deploy/helm/credstash-operator/dist/*.tgz"
+            }
+          ],
           "successComment": "This ${issue.pull_request ? 'pull request' : 'issue'} is included in version ${nextRelease.version}",
           "failComment": "The release from ${branch} had failed due to the following errors:\n- ${errors.map(err => err.message).join('\\n- ')}"
         }
       ]
     ],
     "preset": "angular",
-    "branch": "master",
+    "branches": [
+      "master"
+    ],
     "tagFormat": "v${version}",
     "ci": false
   },
