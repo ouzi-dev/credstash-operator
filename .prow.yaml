@@ -1,0 +1,109 @@
+presubmits:
+  ouzi-dev/credstash-operator:
+    - name: test-credstash-operator
+      decorate: true
+      always_run: true
+      skip_report: false
+      clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
+      max_concurrency: 1
+      trigger: "(?m)test( please)?"
+      rerun_command: "test"
+      spec:
+        containers:
+          - name: "test"
+            imagePullPolicy: IfNotPresent
+            image: quay.io/ouzi/go-builder:1.13.7
+            command:
+              - make
+            args:
+              - test
+    - name: helm-chart-lint
+      context: helm-chart-lint
+      decorate: true
+      always_run: true
+      skip_report: false
+      clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
+      max_concurrency: 1
+      trigger: "(?m)helm-lint( please)?"
+      rerun_command: "helm-lint"
+      spec:
+        containers:
+          - name: "helm-chart-lint"
+            imagePullPolicy: IfNotPresent
+            image: quay.io/ouzi/helm:v3.0.1
+            command:
+              - make
+            args:
+              - helm-lint
+    - name: helm-chart-validate
+      context: helm-chart-validate
+      decorate: true
+      always_run: true
+      skip_report: false
+      clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
+      max_concurrency: 1
+      trigger: "(?m)helm-validate( please)?"
+      rerun_command: "helm-validate"
+      spec:
+        containers:
+          - name: "helm-chart-validate"
+            imagePullPolicy: IfNotPresent
+            image: quay.io/ouzi/helm:v3.0.1
+            command:
+              - make
+            args:
+              - helm-validate
+    - name: helm-chart-package
+      context: helm-chart-package
+      decorate: true
+      always_run: true
+      skip_report: false
+      clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
+      max_concurrency: 1
+      trigger: "(?m)helm-package( please)?"
+      rerun_command: "helm-package"
+      spec:
+        containers:
+          - name: "helm-chart-package"
+            imagePullPolicy: IfNotPresent
+            image: quay.io/ouzi/helm:v3.0.1
+            command:
+              - make
+            args:
+              - helm-package
+              - VERSION=0.0.0
+postsubmits:
+  ouzi-dev/credstash-operator:
+    - name: release
+      labels:
+        preset-semantic-release: "true"
+        preset-docker: "true"
+      clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
+      decorate: true
+      max_concurrency: 1
+      branches:
+        - master
+        - feat/sem-release
+      spec:
+        nodeSelector:
+          group_name: image-builder
+        tolerations:
+          - key: "imagebuilderonly"
+            value: "true"
+            operator: "Equal"
+            effect: "PreferNoSchedule"
+        containers:
+          - name: "release"
+            imagePullPolicy: Always
+            image: quay.io/ouzi/kube-dind:18.09
+            command:
+              - runner.sh
+            args:
+              - make
+              - semantic-release
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                memory: "2Gi"
+                cpu: 1
