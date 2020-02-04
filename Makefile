@@ -150,6 +150,43 @@ generate: setup
 	    -h ./hack/boilerplate.go.txt -r "-"
 	@go generate ./...
 
+CHART_NAME ?= credstash-operator
+CHART_VERSION ?= 0.0.0
+CHART_PATH ?= deploy/helm
+CHART_DIST ?= $(CHART_PATH)/$(CHART_NAME)/dist
+
+.PHONY: helm-clean
+helm-clean:
+	rm -rf $(CHART_PATH)/$(CHART_NAME)/charts
+	rm -rf $(CHART_DIST)
+
+# does not work without explicitly specifying the api version
+# see: https://github.com/helm/helm/issues/6505
+.PHONY: helm-validate
+helm-validate:
+	helm template credstash-operator \
+	--namespace credstash-operator \
+	--debug \
+	-a apiregistration.k8s.io/v1beta1 \
+	-a cert-manager.io/v1alpha2 \
+	-a monitoring.coreos.com/v1 \
+	-a apiextensions.k8s.io/v1beta1 \
+	-a credstash.ouzi.tech/v1 \
+	$(CHART_PATH)/${CHART_NAME}
+
+.PHONY: helm-package
+helm-package: clean
+	@helm package \
+	--version=$(VERSION) \
+	--app-version=$(VERSION) \
+	--dependency-update \
+	--destination deploy/helm/$(CHART_DIST) \
+	$(CHART_PATH)/$(CHART_NAME)
+
+.PHONY: helm-lint
+helm-lint:
+	helm lint ./deploy/helm/$(CHART_NAME)
+
 .PHONY: semantic-release
 semantic-release:
 	@npm ci
