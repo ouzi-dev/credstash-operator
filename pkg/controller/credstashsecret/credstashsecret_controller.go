@@ -158,6 +158,30 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 			return reconcile.Result{}, err
 		}
 
+		// Secret name has changed
+		if instance.Status.SecretName != "" && secret.Name != instance.Status.SecretName {
+			secretToDelete := &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      instance.Status.SecretName,
+					Namespace: instance.Namespace,
+				},
+			}
+
+			reqLogger.Info("Deleting old secret since name has changed", "Secret.Namespace", secretToDelete.Namespace, "Secret.Name", secretToDelete.Name)
+
+			err = r.client.Delete(context.TODO(), secretToDelete)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+
+		instance.Status.SecretName = secret.Name
+
+		err = r.client.Status().Update(context.TODO(), instance)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
 		// Secret created successfully - don't requeue
 		return reconcile.Result{}, nil
 	} else if err != nil {
@@ -187,9 +211,15 @@ func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSe
 		return nil, err
 	}
 
+	// default to custom resource name if name is not provided
+	secretName := cr.Spec.SecretName
+	if secretName == "" {
+		secretName = cr.Name
+	}
+
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name,
+			Name:      secretName,
 			Namespace: cr.Namespace,
 		},
 		Data: credstashSecretsValueMap,

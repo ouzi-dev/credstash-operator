@@ -12,6 +12,7 @@ type CredstashSecretDef struct {
 
 // CredstashSecretSpec defines the desired state of CredstashSecret
 type CredstashSecretSpec struct {
+	SecretName string `json:"name,omitempty"`
 	Secrets []CredstashSecretDef `json:"secrets,omitempty"`
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
@@ -20,7 +21,7 @@ type CredstashSecretSpec struct {
 
 // CredstashSecretStatus defines the observed state of CredstashSecret
 type CredstashSecretStatus struct {
-
+	SecretName string `json:"name,omitempty"`
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html

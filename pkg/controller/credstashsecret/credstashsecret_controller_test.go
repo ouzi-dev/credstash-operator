@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/ouzi-dev/credstash-operator/pkg/mocks"
 	"github.com/stretchr/testify/assert"
+	errors2 "k8s.io/apimachinery/pkg/api/errors"
 	"testing"
 
 	credstashv1alpha1 "github.com/ouzi-dev/credstash-operator/pkg/apis/credstash/v1alpha1"
@@ -22,315 +23,293 @@ import (
 
 const (
 	errorString = "an error has occured"
+	name            = "credstashCR"
+	namespace       = "credstash"
+	credstashKey	= "key1"
+	credstashValue	= "value1"
+	secretName 		= "specialName"
 )
 
-func TestCreatingSecretWhenCredstashError(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockCredstashSecretGetter := mocks.NewMockSecretGetter(ctrl)
-	// Set the logger to development mode for verbose logs.
-	logf.SetLogger(logf.ZapLogger(true))
-
-	var (
-		name            = "credstashCR"
-		namespace       = "credstash"
-	)
-
-	credstashSecretDefs := []credstashv1alpha1.CredstashSecretDef{
-		{
-			Key: "I do not exist",
-		},
-	}
-
-	// A credstashCR resource with metadata and spec.
-	credstashCR := &credstashv1alpha1.CredstashSecret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Spec: credstashv1alpha1.CredstashSecretSpec{
-			Secrets: credstashSecretDefs,
-		},
-	}
-	// Objects to track in the fake client.
-	objs := []runtime.Object{
-		credstashCR,
-	}
-
-	// Register operator types with the runtime scheme.
-	s := scheme.Scheme
-	s.AddKnownTypes(credstashv1alpha1.SchemeGroupVersion, credstashCR)
-	// Create a fake client to mock API calls.
-	cl := fake.NewFakeClientWithScheme(s, objs...)
-	// Create a ReconcileCredstashSecret object with the scheme and fake client.
-	r := &ReconcileCredstashSecret{client: cl, scheme: s, credstashSecretGetter: mockCredstashSecretGetter}
-
-	// Mock request to simulate Reconcile() being called on an event for a
-	// watched resource .
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      name,
-			Namespace: namespace,
-		},
-	}
-
-	mockCredstashSecretGetter.
-		EXPECT().GetCredstashSecretsForCredstashSecretDefs(credstashSecretDefs).
-		Return(nil, errors.New(errorString)).
-		Times(1)
-
-	_, err := r.Reconcile(req)
-
-	assert.Error(t, err)
-	assert.Contains(t, errorString, err.Error())
+type testReconcileItem struct {
+	testName   			 string
+	customResource		 *credstashv1alpha1.CredstashSecret
+	existsingSecret		 *corev1.Secret
+	credstashError       error
+	expectedResultSecret *corev1.Secret
 }
 
-func TestCreatingSecretWhenCredstashReturnsDataAndNoSecretExists(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockCredstashSecretGetter := mocks.NewMockSecretGetter(ctrl)
-	// Set the logger to development mode for verbose logs.
-	logf.SetLogger(logf.ZapLogger(true))
-
-	var (
-		name            = "credstashCR"
-		namespace       = "credstash"
-		credstashKey	= "key1"
-		credstashValue	= "value1"
-		credstashGetterReturn = map[string][]byte{
-			credstashKey: []byte(credstashValue),
-		}
-	)
-
-	credstashSecretDefs := []credstashv1alpha1.CredstashSecretDef{
-		{
-			Key: "key1",
-		},
+var (
+	credstashGetterReturn = map[string][]byte{
+		credstashKey: []byte(credstashValue),
 	}
+)
 
-	// A credstashCR resource with metadata and spec.
-	credstashCR := &credstashv1alpha1.CredstashSecret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
+var tests = []testReconcileItem{
+	{
+		testName: "Credstash error",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+			},
 		},
-		Spec: credstashv1alpha1.CredstashSecretSpec{
-			Secrets: credstashSecretDefs,
+		existsingSecret: nil,
+		credstashError: errors.New(errorString),
+		expectedResultSecret: nil,
+	},
+	{
+		testName: "No existing secret",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+			},
 		},
-	}
-	// Objects to track in the fake client.
-	objs := []runtime.Object{
-		credstashCR,
-	}
-
-	// Register operator types with the runtime scheme.
-	s := scheme.Scheme
-	s.AddKnownTypes(credstashv1alpha1.SchemeGroupVersion, credstashCR)
-	// Create a fake client to mock API calls.
-	cl := fake.NewFakeClientWithScheme(s, objs...)
-	// Create a ReconcileCredstashSecret object with the scheme and fake client.
-	r := &ReconcileCredstashSecret{client: cl, scheme: s, credstashSecretGetter: mockCredstashSecretGetter}
-
-	// Mock request to simulate Reconcile() being called on an event for a
-	// watched resource .
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      name,
-			Namespace: namespace,
+		existsingSecret: nil,
+		credstashError: nil,
+		expectedResultSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
 		},
-	}
-
-	mockCredstashSecretGetter.
-		EXPECT().GetCredstashSecretsForCredstashSecretDefs(credstashSecretDefs).
-		Return(credstashGetterReturn, nil).
-		Times(1)
-
-	res, err := r.Reconcile(req)
-
-	assert.NoError(t, err)
-	assert.False(t,res.Requeue)
-
-	// Check if Secret has been created and has the correct data
-	secret := &corev1.Secret{}
-	err = cl.Get(context.TODO(), req.NamespacedName, secret)
-
-	assert.NoError(t, err)
-	assert.Equal(t, credstashValue, string(secret.Data[credstashKey]))
+	},
+	{
+		testName: "Existing different data secret",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+			},
+		},
+		existsingSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Data: map[string][]byte{
+				"differentKey": []byte("differentValue"),
+			},
+		},
+		credstashError: nil,
+		expectedResultSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+	},
+	{
+		testName: "Existing identical data secret",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+			},
+		},
+		existsingSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+		credstashError: nil,
+		expectedResultSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+	},
+	{
+		testName: "Name specified and no existing secret",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				SecretName: secretName,
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+			},
+		},
+		existsingSecret: nil,
+		credstashError: nil,
+		expectedResultSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+	},
+	{
+		testName: "Name specified and existing secret with same name and data",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				SecretName: secretName,
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+			},
+		},
+		existsingSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+		credstashError: nil,
+		expectedResultSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+	},
+	{
+		testName: "Name specified and existing secret with different name",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				SecretName: secretName,
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+			},
+		},
+		existsingSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "different name",
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+		credstashError: nil,
+		expectedResultSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+		},
+	},
 }
 
-func TestCreatingSecretWhenCredstashReturnsDataAndSecretExistsWithDifferentData(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
+func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
 
-	mockCredstashSecretGetter := mocks.NewMockSecretGetter(ctrl)
-	// Set the logger to development mode for verbose logs.
-	logf.SetLogger(logf.ZapLogger(true))
+	for _, testData := range tests {
+		t.Run(testData.testName, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
 
-	var (
-		name            = "credstashCR"
-		namespace       = "credstash"
-		credstashExistingKey	= "existing key"
-		credstashExistingValue	= "existing value"
-		credstashKey	= "key1"
-		credstashValue	= "value1"
-		credstashSecretExistingData = map[string][]byte{
-			credstashExistingKey: []byte(credstashExistingValue),
-		}
-		credstashGetterReturn = map[string][]byte{
-			credstashKey: []byte(credstashValue),
-		}
-	)
+			mockCredstashSecretGetter := mocks.NewMockSecretGetter(ctrl)
+			// Set the logger to development mode for verbose logs.
+			logf.SetLogger(logf.ZapLogger(true))
 
-	credstashSecretDefs := []credstashv1alpha1.CredstashSecretDef{
-		{
-			Key: "key1",
-		},
+			// Register operator types with the runtime scheme.
+			s := scheme.Scheme
+			s.AddKnownTypes(credstashv1alpha1.SchemeGroupVersion, testData.customResource)
+
+			// Objects to track in the fake client.
+			objs := []runtime.Object{
+				testData.customResource,
+			}
+
+			if testData.existsingSecret != nil {
+				objs = append(objs, testData.existsingSecret)
+			}
+
+			// Create a fake client to mock API calls.
+			cl := fake.NewFakeClientWithScheme(s, objs...)
+			// Create a ReconcileCredstashSecret object with the scheme and fake client.
+			r := &ReconcileCredstashSecret{client: cl, scheme: s, credstashSecretGetter: mockCredstashSecretGetter}
+
+			// Mock request to simulate Reconcile() being called on an event for a
+			// watched resource .
+			req := reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Name:      name,
+					Namespace: namespace,
+				},
+			}
+
+			mockCredstashSecretGetter.
+				EXPECT().GetCredstashSecretsForCredstashSecretDefs(testData.customResource.Spec.Secrets).
+				Return(credstashGetterReturn, testData.credstashError).
+				Times(1)
+
+			_, err := r.Reconcile(req)
+
+			assert.Equal(t, testData.credstashError, err)
+
+			var expectedSecretName string
+			if testData.expectedResultSecret == nil {
+				expectedSecretName = testData.customResource.Name
+			} else {
+				expectedSecretName = testData.expectedResultSecret.Name
+			}
+
+			// Check if Secret has been created and has the correct data
+			secret := &corev1.Secret{}
+			err = cl.Get(context.TODO(), types.NamespacedName{Name: expectedSecretName, Namespace:namespace}, secret)
+
+			if testData.expectedResultSecret == nil {
+				assert.Error(t, err)
+				assert.True(t, errors2.IsNotFound(err))
+			} else {
+				assert.Equal(t, testData.expectedResultSecret.Data, secret.Data)
+				assert.Equal(t, testData.expectedResultSecret.Name, secret.Name)
+			}
+		})
 	}
-
-	// A credstashCR resource with metadata and spec.
-	credstashCR := &credstashv1alpha1.CredstashSecret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Spec: credstashv1alpha1.CredstashSecretSpec{
-			Secrets: credstashSecretDefs,
-		},
-	}
-
-	// A existing secret corresponding to the credstash secret
-	existingSecret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Data: credstashSecretExistingData,
-	}
-
-	// Objects to track in the fake client.
-	objs := []runtime.Object{
-		credstashCR,
-		existingSecret,
-	}
-
-	// Register operator types with the runtime scheme.
-	s := scheme.Scheme
-	s.AddKnownTypes(credstashv1alpha1.SchemeGroupVersion, credstashCR)
-	// Create a fake client to mock API calls.
-	cl := fake.NewFakeClientWithScheme(s, objs...)
-	// Create a ReconcileCredstashSecret object with the scheme and fake client.
-	r := &ReconcileCredstashSecret{client: cl, scheme: s, credstashSecretGetter: mockCredstashSecretGetter}
-
-	// Mock request to simulate Reconcile() being called on an event for a
-	// watched resource .
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      name,
-			Namespace: namespace,
-		},
-	}
-
-	mockCredstashSecretGetter.
-		EXPECT().GetCredstashSecretsForCredstashSecretDefs(credstashSecretDefs).
-		Return(credstashGetterReturn, nil).
-		Times(1)
-
-	res, err := r.Reconcile(req)
-
-	assert.NoError(t, err)
-	assert.False(t,res.Requeue)
-
-	// Check if Secret has been created and has the correct data
-	secret := &corev1.Secret{}
-	err = cl.Get(context.TODO(), req.NamespacedName, secret)
-
-	assert.NoError(t, err)
-	assert.Equal(t, credstashValue, string(secret.Data[credstashKey]))
-}
-
-func TestCreatingSecretWhenCredstashReturnsDataAndSecretExistsWithSameData(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockCredstashSecretGetter := mocks.NewMockSecretGetter(ctrl)
-	// Set the logger to development mode for verbose logs.
-	logf.SetLogger(logf.ZapLogger(true))
-
-	var (
-		name            = "credstashCR"
-		namespace       = "credstash"
-		credstashKey	= "key1"
-		credstashValue	= "value1"
-		credstashGetterReturn = map[string][]byte{
-			credstashKey: []byte(credstashValue),
-		}
-	)
-
-	credstashSecretDefs := []credstashv1alpha1.CredstashSecretDef{
-		{
-			Key: "key1",
-		},
-	}
-
-	// A credstashCR resource with metadata and spec.
-	credstashCR := &credstashv1alpha1.CredstashSecret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Spec: credstashv1alpha1.CredstashSecretSpec{
-			Secrets: credstashSecretDefs,
-		},
-	}
-
-	// A existing secret corresponding to the credstash secret
-	existingSecret := &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
-		Data: credstashGetterReturn,
-	}
-
-	// Objects to track in the fake client.
-	objs := []runtime.Object{
-		credstashCR,
-		existingSecret,
-	}
-
-	// Register operator types with the runtime scheme.
-	s := scheme.Scheme
-	s.AddKnownTypes(credstashv1alpha1.SchemeGroupVersion, credstashCR)
-	// Create a fake client to mock API calls.
-	cl := fake.NewFakeClientWithScheme(s, objs...)
-	// Create a ReconcileCredstashSecret object with the scheme and fake client.
-	r := &ReconcileCredstashSecret{client: cl, scheme: s, credstashSecretGetter: mockCredstashSecretGetter}
-
-	// Mock request to simulate Reconcile() being called on an event for a
-	// watched resource .
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      name,
-			Namespace: namespace,
-		},
-	}
-
-	mockCredstashSecretGetter.
-		EXPECT().GetCredstashSecretsForCredstashSecretDefs(credstashSecretDefs).
-		Return(credstashGetterReturn, nil).
-		Times(1)
-
-	res, err := r.Reconcile(req)
-
-	assert.NoError(t, err)
-	assert.False(t,res.Requeue)
-
-	// Check if Secret has been created and has the correct data
-	secret := &corev1.Secret{}
-	err = cl.Get(context.TODO(), req.NamespacedName, secret)
-
-	assert.NoError(t, err)
-	assert.Equal(t, credstashValue, string(secret.Data[credstashKey]))
 }
