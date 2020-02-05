@@ -7,7 +7,7 @@ import (
 )
 
 // Gets the aws session to use for looking up credstash secrets
-func GetAwsSession(region string, awsAccessKeyId string, awsSecretAccessKey string) (*session.Session, error){
+func GetAwsSession(region string, awsAccessKeyId string, awsSecretAccessKey string) (*session.Session, error) {
 
 	if awsAccessKeyId == "" || awsSecretAccessKey == "" {
 		config := aws.Config{
@@ -42,7 +42,7 @@ func GetAwsSession(region string, awsAccessKeyId string, awsSecretAccessKey stri
 }
 
 // Gets the aws session to use for looking up credstash secrets falling back to the environment config
-func GetAwsSessionFromEnv() (*session.Session, error){
+func GetAwsSessionFromEnv() (*session.Session, error) {
 	sess, err := session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	})

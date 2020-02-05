@@ -3,11 +3,12 @@ package credstashsecret
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/ouzi-dev/credstash-operator/pkg/mocks"
 	"github.com/stretchr/testify/assert"
 	errors2 "k8s.io/apimachinery/pkg/api/errors"
-	"testing"
 
 	credstashv1alpha1 "github.com/ouzi-dev/credstash-operator/pkg/apis/credstash/v1alpha1"
 
@@ -22,18 +23,18 @@ import (
 )
 
 const (
-	errorString = "an error has occured"
-	name            = "credstashCR"
-	namespace       = "credstash"
-	credstashKey	= "key1"
-	credstashValue	= "value1"
-	secretName 		= "specialName"
+	errorString    = "an error has occured"
+	name           = "credstashCR"
+	namespace      = "credstash"
+	credstashKey   = "key1"
+	credstashValue = "value1"
+	secretName     = "specialName"
 )
 
 type testReconcileItem struct {
-	testName   			 string
-	customResource		 *credstashv1alpha1.CredstashSecret
-	existsingSecret		 *corev1.Secret
+	testName             string
+	customResource       *credstashv1alpha1.CredstashSecret
+	existsingSecret      *corev1.Secret
 	credstashError       error
 	expectedResultSecret *corev1.Secret
 }
@@ -60,8 +61,8 @@ var tests = []testReconcileItem{
 				},
 			},
 		},
-		existsingSecret: nil,
-		credstashError: errors.New(errorString),
+		existsingSecret:      nil,
+		credstashError:       errors.New(errorString),
 		expectedResultSecret: nil,
 	},
 	{
@@ -80,7 +81,7 @@ var tests = []testReconcileItem{
 			},
 		},
 		existsingSecret: nil,
-		credstashError: nil,
+		credstashError:  nil,
 		expectedResultSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
@@ -102,6 +103,9 @@ var tests = []testReconcileItem{
 						Key: credstashKey,
 					},
 				},
+			},
+			Status: credstashv1alpha1.CredstashSecretStatus{
+				SecretName: name,
 			},
 		},
 		existsingSecret: &corev1.Secret{
@@ -135,6 +139,9 @@ var tests = []testReconcileItem{
 						Key: credstashKey,
 					},
 				},
+			},
+			Status: credstashv1alpha1.CredstashSecretStatus{
+				SecretName: name,
 			},
 		},
 		existsingSecret: &corev1.Secret{
@@ -170,7 +177,7 @@ var tests = []testReconcileItem{
 			},
 		},
 		existsingSecret: nil,
-		credstashError: nil,
+		credstashError:  nil,
 		expectedResultSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
@@ -193,6 +200,9 @@ var tests = []testReconcileItem{
 						Key: credstashKey,
 					},
 				},
+			},
+			Status: credstashv1alpha1.CredstashSecretStatus{
+				SecretName: secretName,
 			},
 		},
 		existsingSecret: &corev1.Secret{
@@ -225,6 +235,9 @@ var tests = []testReconcileItem{
 						Key: credstashKey,
 					},
 				},
+			},
+			Status: credstashv1alpha1.CredstashSecretStatus{
+				SecretName: secretName,
 			},
 		},
 		existsingSecret: &corev1.Secret{
@@ -301,7 +314,7 @@ func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
 
 			// Check if Secret has been created and has the correct data
 			secret := &corev1.Secret{}
-			err = cl.Get(context.TODO(), types.NamespacedName{Name: expectedSecretName, Namespace:namespace}, secret)
+			err = cl.Get(context.TODO(), types.NamespacedName{Name: expectedSecretName, Namespace: namespace}, secret)
 
 			if testData.expectedResultSecret == nil {
 				assert.Error(t, err)
@@ -309,6 +322,11 @@ func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
 			} else {
 				assert.Equal(t, testData.expectedResultSecret.Data, secret.Data)
 				assert.Equal(t, testData.expectedResultSecret.Name, secret.Name)
+
+				updatedCR := &credstashv1alpha1.CredstashSecret{}
+				err = cl.Get(context.TODO(), req.NamespacedName, updatedCR)
+				assert.NoError(t, err)
+				assert.Equal(t, testData.expectedResultSecret.Name, updatedCR.Status.SecretName)
 			}
 		})
 	}
