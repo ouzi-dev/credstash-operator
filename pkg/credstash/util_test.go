@@ -1,41 +1,42 @@
 package credstash
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type testItem struct {
-	inputVersion   string
-	expectedVersion string
-	expectedErrorText   string
+	inputVersion      string
+	expectedVersion   string
+	expectedErrorText string
 }
 
 func TestCredstashSecretGetter_GetCredstashSecretsForCredstashSecretDefs(t *testing.T) {
 	tests := []testItem{
 		{
-			inputVersion: "1",
-			expectedVersion: "0000000000000000001",
+			inputVersion:      "1",
+			expectedVersion:   "0000000000000000001",
 			expectedErrorText: "",
 		},
 		{
-			inputVersion: "001",
-			expectedVersion: "0000000000000000001",
+			inputVersion:      "001",
+			expectedVersion:   "0000000000000000001",
 			expectedErrorText: "",
 		},
 		{
-			inputVersion: "0000000000000000001",
-			expectedVersion: "0000000000000000001",
+			inputVersion:      "0000000000000000001",
+			expectedVersion:   "0000000000000000001",
 			expectedErrorText: "",
 		},
 		{
-			inputVersion: "00000000000000000000001",
-			expectedVersion: "",
+			inputVersion:      "00000000000000000000001",
+			expectedVersion:   "",
 			expectedErrorText: "Version string is longer than supported.",
 		},
 		{
-			inputVersion: "this is not a number",
-			expectedVersion: "",
+			inputVersion:      "this is not a number",
+			expectedVersion:   "",
 			expectedErrorText: "invalid syntax",
 		},
 	}

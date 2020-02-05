@@ -5,9 +5,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/ouzi-dev/credstash-operator/pkg/flags"
 	"os"
 	"runtime"
+
+	"github.com/ouzi-dev/credstash-operator/pkg/flags"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -38,7 +39,7 @@ var (
 	metricsHost               = "0.0.0.0"
 	metricsPort         int32 = 8383
 	operatorMetricsPort int32 = 8686
-	healthProbeHost     	  = "0.0.0.0"
+	healthProbeHost           = "0.0.0.0"
 	healthProbePort     int32 = 8080
 )
 var log = logf.Log.WithName("cmd")
@@ -99,7 +100,7 @@ func main() {
 	}
 
 	managerOptions := manager.Options{
-		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort),
+		MetricsBindAddress:     fmt.Sprintf("%s:%d", metricsHost, metricsPort),
 		HealthProbeBindAddress: fmt.Sprintf("%s:%d", healthProbeHost, healthProbePort),
 	}
 

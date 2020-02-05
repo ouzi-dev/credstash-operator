@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func formatCredstashVersion(inputVersion string) (string, error){
+func formatCredstashVersion(inputVersion string) (string, error) {
 	_, err := strconv.Atoi(inputVersion)
 	if err != nil {
 		log.Error(err, "Could not parse credstash version into number",
@@ -28,7 +28,7 @@ func formatCredstashVersion(inputVersion string) (string, error){
 
 	// pad version with leading zeros until we reach credstashVersionLength
 	// format becomes something like %019s which means pad the string until there's 19 0s
-	format := fmt.Sprintf("%s%ds","%0", credstashVersionLength)
+	format := fmt.Sprintf("%s%ds", "%0", credstashVersionLength)
 	newVersion := fmt.Sprintf(format, inputVersion)
 	return newVersion, nil
 }

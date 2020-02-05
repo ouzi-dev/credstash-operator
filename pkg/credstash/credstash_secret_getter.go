@@ -15,7 +15,7 @@ type secretGetter struct {
 }
 
 const (
-	defaultCredstashTable = "credential-store"
+	defaultCredstashTable  = "credential-store"
 	credstashVersionLength = 19
 )
 
@@ -30,7 +30,7 @@ func NewSecretGetter(awsSession *session.Session) SecretGetter {
 func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(credstashDefs []v1alpha1.CredstashSecretDef) (map[string][]byte, error) {
 	ecryptionContext := unicreds.NewEncryptionContextValue()
 	secretsMap := map[string][]byte{}
-	for _,v := range credstashDefs {
+	for _, v := range credstashDefs {
 		table := v.Table
 		if table == "" {
 			table = defaultCredstashTable

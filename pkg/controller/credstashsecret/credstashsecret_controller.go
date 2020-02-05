@@ -18,10 +18,11 @@ package credstashsecret
 
 import (
 	"context"
+	"reflect"
+
 	"github.com/ouzi-dev/credstash-operator/pkg/aws"
 	"github.com/ouzi-dev/credstash-operator/pkg/credstash"
 	"github.com/ouzi-dev/credstash-operator/pkg/flags"
-	"reflect"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
@@ -45,7 +46,6 @@ const LabelNameForSelector = "operatorInstance"
 
 var log = logf.Log.WithName("controller_credstashsecret")
 
-
 // Add creates a new CredstashSecret Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
@@ -64,8 +64,8 @@ func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 	}
 
 	return &ReconcileCredstashSecret{
-		client: mgr.GetClient(),
-		scheme: mgr.GetScheme(),
+		client:                mgr.GetClient(),
+		scheme:                mgr.GetScheme(),
 		credstashSecretGetter: credstash.NewSecretGetter(awsSession),
 	}, nil
 }
@@ -106,8 +106,8 @@ var _ reconcile.Reconciler = &ReconcileCredstashSecret{}
 type ReconcileCredstashSecret struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
-	client client.Client
-	scheme *runtime.Scheme
+	client                client.Client
+	scheme                *runtime.Scheme
 	credstashSecretGetter credstash.SecretGetter
 }
 
@@ -158,6 +158,30 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 			return reconcile.Result{}, err
 		}
 
+		// Secret name has changed
+		if instance.Status.SecretName != "" && secret.Name != instance.Status.SecretName {
+			secretToDelete := &corev1.Secret{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      instance.Status.SecretName,
+					Namespace: instance.Namespace,
+				},
+			}
+
+			reqLogger.Info("Deleting old secret since name has changed", "Secret.Namespace", secretToDelete.Namespace, "Secret.Name", secretToDelete.Name)
+
+			err = r.client.Delete(context.TODO(), secretToDelete)
+			if err != nil {
+				return reconcile.Result{}, err
+			}
+		}
+
+		instance.Status.SecretName = secret.Name
+
+		err = r.client.Status().Update(context.TODO(), instance)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+
 		// Secret created successfully - don't requeue
 		return reconcile.Result{}, nil
 	} else if err != nil {
@@ -187,9 +211,15 @@ func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSe
 		return nil, err
 	}
 
+	// default to custom resource name if name is not provided
+	secretName := cr.Spec.SecretName
+	if secretName == "" {
+		secretName = cr.Name
+	}
+
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name,
+			Name:      secretName,
 			Namespace: cr.Namespace,
 		},
 		Data: credstashSecretsValueMap,
