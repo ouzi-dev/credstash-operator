@@ -48,4 +48,4 @@ helm upgrade --install credstash deploy/helm/credstash-operator \
 helm upgrade --install credstash deploy/helm/credstash-operator \
     -n credstash \
     --set awsCredentials.secretName=aws-credentials
-```
+``` 
