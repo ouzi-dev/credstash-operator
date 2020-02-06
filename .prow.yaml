@@ -16,6 +16,23 @@ presubmits:
             - make
           args:
             - test
+  - name: lint-credstash-operator
+    decorate: true
+    always_run: true
+    skip_report: false
+    clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
+    max_concurrency: 1
+    trigger: "(?m)lint( please)?"
+    rerun_command: "lint"
+    spec:
+      containers:
+        - name: "lint"
+          imagePullPolicy: IfNotPresent
+          image: quay.io/ouzi/go-builder:1.13.7
+          command:
+            - make
+          args:
+            - lint
   - name: helm-chart-lint
     context: helm-chart-lint
     decorate: true
