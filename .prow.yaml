@@ -116,7 +116,7 @@ presubmits:
           args:
             - semantic-release-dry-run
 postsubmits:
-  - name: release
+  - name: credstash-operator-release
     labels:
       preset-semantic-release: "true"
       preset-docker: "true"
