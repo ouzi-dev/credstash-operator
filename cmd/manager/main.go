@@ -45,7 +45,11 @@ var (
 var log = logf.Log.WithName("cmd")
 
 func init() {
-	pflag.StringVar(&flags.SelectorLabelValue, "selector-label", "", "If provided the controller will only process CRDs that have the provided label")
+	pflag.StringVar(
+		&flags.SelectorLabelValue,
+		"selector-label",
+		"",
+		"If provided the controller will only process CRDs that have the provided label")
 }
 
 func printVersion() {
@@ -55,6 +59,7 @@ func printVersion() {
 	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
 }
 
+//nolint funlen
 func main() {
 	// Add the zap logger flag set to the CLI. The flag set must
 	// be added before calling pflag.Parse().
@@ -162,13 +167,24 @@ func addMetrics(ctx context.Context, cfg *rest.Config, namespace string) {
 			log.Info("Skipping CR metrics server creation; not running in a cluster.")
 			return
 		}
+
 		log.Info("Could not generate and serve custom resource metrics", "error", err.Error())
 	}
 
 	// Add to the below struct any other metrics ports you want to expose.
 	servicePorts := []v1.ServicePort{
-		{Port: metricsPort, Name: metrics.OperatorPortName, Protocol: v1.ProtocolTCP, TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: metricsPort}},
-		{Port: operatorMetricsPort, Name: metrics.CRPortName, Protocol: v1.ProtocolTCP, TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: operatorMetricsPort}},
+		{
+			Port:       metricsPort,
+			Name:       metrics.OperatorPortName,
+			Protocol:   v1.ProtocolTCP,
+			TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: metricsPort},
+		},
+		{
+			Port:       operatorMetricsPort,
+			Name:       metrics.CRPortName,
+			Protocol:   v1.ProtocolTCP,
+			TargetPort: intstr.IntOrString{Type: intstr.Int, IntVal: operatorMetricsPort},
+		},
 	}
 
 	// Create Service object to expose the metrics port(s).
@@ -180,6 +196,7 @@ func addMetrics(ctx context.Context, cfg *rest.Config, namespace string) {
 	// CreateServiceMonitors will automatically create the prometheus-operator ServiceMonitor resources
 	// necessary to configure Prometheus to scrape metrics from this operator.
 	services := []*v1.Service{service}
+
 	_, err = metrics.CreateServiceMonitors(cfg, namespace, services)
 	if err != nil {
 		log.Info("Could not create ServiceMonitor object", "error", err.Error())
@@ -212,5 +229,6 @@ func serveCRMetrics(cfg *rest.Config) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

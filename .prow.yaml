@@ -16,10 +16,32 @@ presubmits:
             - make
           args:
             - test
+  - name: lint-credstash-operator
+    decorate: true
+    always_run: true
+    skip_report: false
+    clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
+    max_concurrency: 1
+    trigger: "(?m)lint( please)?"
+    rerun_command: "lint"
+    spec:
+      containers:
+        - name: "lint"
+          imagePullPolicy: IfNotPresent
+          image: quay.io/ouzi/go-builder:1.13.7
+          command:
+            - make
+          args:
+            - lint
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: 1
   - name: helm-chart-lint
     context: helm-chart-lint
     decorate: true
-    always_run: true
+    run_if_changed: 'deploy/helm/'
+    always_run: false
     skip_report: false
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     max_concurrency: 1
@@ -37,7 +59,8 @@ presubmits:
   - name: helm-chart-validate
     context: helm-chart-validate
     decorate: true
-    always_run: true
+    run_if_changed: 'deploy/helm/'
+    always_run: false
     skip_report: false
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     max_concurrency: 1
@@ -55,7 +78,8 @@ presubmits:
   - name: helm-chart-package
     context: helm-chart-package
     decorate: true
-    always_run: true
+    run_if_changed: 'deploy/helm/'
+    always_run: false
     skip_report: false
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     max_concurrency: 1

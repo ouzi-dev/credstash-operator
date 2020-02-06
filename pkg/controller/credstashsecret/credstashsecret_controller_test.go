@@ -19,11 +19,10 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
 const (
-	errorString    = "an error has occured"
+	errorString    = "an error has occurred"
 	name           = "credstashCR"
 	namespace      = "credstash"
 	credstashKey   = "key1"
@@ -258,16 +257,14 @@ var tests = []testReconcileItem{
 	},
 }
 
+//nolint funlen
 func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
-
 	for _, testData := range tests {
 		t.Run(testData.testName, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
 			mockCredstashSecretGetter := mocks.NewMockSecretGetter(ctrl)
-			// Set the logger to development mode for verbose logs.
-			logf.SetLogger(logf.ZapLogger(true))
 
 			// Register operator types with the runtime scheme.
 			s := scheme.Scheme

@@ -24,12 +24,15 @@ var log = logf.Log.WithName("credstashsecret_getter")
 func NewSecretGetter(awsSession *session.Session) SecretGetter {
 	unicreds.SetKMSConfig(awsSession.Config)
 	unicreds.SetDynamoDBConfig(awsSession.Config)
+
 	return &secretGetter{}
 }
 
-func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(credstashDefs []v1alpha1.CredstashSecretDef) (map[string][]byte, error) {
+func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(
+	credstashDefs []v1alpha1.CredstashSecretDef) (map[string][]byte, error) {
 	ecryptionContext := unicreds.NewEncryptionContextValue()
 	secretsMap := map[string][]byte{}
+
 	for _, v := range credstashDefs {
 		table := v.Table
 		if table == "" {
@@ -43,6 +46,7 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(credstashDefs [
 					"Secret.Key", v.Key, "Secret.Version", "latest", "Secret.Table", table)
 				return nil, err
 			}
+
 			secretsMap[v.Key] = []byte(creds.Secret)
 		} else {
 			formattedVersion, err := formatCredstashVersion(v.Version)
@@ -58,6 +62,7 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(credstashDefs [
 					"Secret.Key", v.Key, "Secret.Version", formattedVersion, "Secret.Table", table)
 				return nil, err
 			}
+
 			secretsMap[v.Key] = []byte(creds.Secret)
 		}
 	}

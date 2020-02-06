@@ -32,7 +32,7 @@ func TestCredstashSecretGetter_GetCredstashSecretsForCredstashSecretDefs(t *test
 		{
 			inputVersion:      "00000000000000000000001",
 			expectedVersion:   "",
-			expectedErrorText: "Version string is longer than supported.",
+			expectedErrorText: "version string is longer than supported.",
 		},
 		{
 			inputVersion:      "this is not a number",
@@ -44,6 +44,7 @@ func TestCredstashSecretGetter_GetCredstashSecretsForCredstashSecretDefs(t *test
 	for _, v := range tests {
 		actualVersion, actualError := formatCredstashVersion(v.inputVersion)
 		assert.Equal(t, v.expectedVersion, actualVersion)
+
 		if actualError != nil {
 			assert.Contains(t, actualError.Error(), v.expectedErrorText)
 		}
