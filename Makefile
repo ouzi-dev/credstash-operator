@@ -108,6 +108,7 @@ lint:
 	--skip-files \
 	pkg/apis/credstash/v1alpha1/zz_generated.deepcopy.go,\
 	pkg/apis/credstash/v1alpha1/zz_generated.openapi.go \
+	--timeout 2m \
 	./...
 
 .DEFAULT_GOAL := build
