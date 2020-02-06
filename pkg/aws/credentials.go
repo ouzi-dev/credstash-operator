@@ -6,13 +6,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
-// Gets the aws session to use for looking up credstash secrets
-func GetAwsSession(region string, awsAccessKeyId string, awsSecretAccessKey string) (*session.Session, error) {
+const awsSdkMaxRetries = 5
 
-	if awsAccessKeyId == "" || awsSecretAccessKey == "" {
+// Gets the aws session to use for looking up credstash secrets
+func GetAwsSession(region string, awsAccessKeyID string, awsSecretAccessKey string) (*session.Session, error) {
+	if awsAccessKeyID == "" || awsSecretAccessKey == "" {
 		config := aws.Config{
 			Region:     aws.String(region),
-			MaxRetries: aws.Int(5),
+			MaxRetries: aws.Int(awsSdkMaxRetries),
 		}
 
 		sess, err := session.NewSessionWithOptions(session.Options{
@@ -25,12 +26,11 @@ func GetAwsSession(region string, awsAccessKeyId string, awsSecretAccessKey stri
 		}
 
 		return sess, nil
-
 	}
 
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(region),
-		Credentials: credentials.NewStaticCredentials(awsAccessKeyId, awsSecretAccessKey, ""),
+		Credentials: credentials.NewStaticCredentials(awsAccessKeyID, awsSecretAccessKey, ""),
 	})
 
 	if err != nil {
@@ -38,7 +38,6 @@ func GetAwsSession(region string, awsAccessKeyId string, awsSecretAccessKey stri
 	}
 
 	return sess, nil
-
 }
 
 // Gets the aws session to use for looking up credstash secrets falling back to the environment config

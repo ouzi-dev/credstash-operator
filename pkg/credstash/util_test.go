@@ -44,6 +44,7 @@ func TestCredstashSecretGetter_GetCredstashSecretsForCredstashSecretDefs(t *test
 	for _, v := range tests {
 		actualVersion, actualError := formatCredstashVersion(v.inputVersion)
 		assert.Equal(t, v.expectedVersion, actualVersion)
+
 		if actualError != nil {
 			assert.Contains(t, actualError.Error(), v.expectedErrorText)
 		}

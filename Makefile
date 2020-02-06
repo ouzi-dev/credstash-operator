@@ -100,7 +100,15 @@ fmt:
 	find . -name '*.go' -not -wholename './vendor/*' | while read -r file; do gofmt -w -s "$$file"; goimports -w "$$file"; done
 
 lint:
-	golangci-lint run --enable-all -D gochecknoglobals -D gochecknoinits -D dupl ./...
+	golangci-lint run \
+	--enable-all \
+	-D gochecknoglobals \
+	-D gochecknoinits \
+	-D dupl \
+	--skip-files \
+	pkg/apis/credstash/v1alpha1/zz_generated.deepcopy.go,\
+	pkg/apis/credstash/v1alpha1/zz_generated.openapi.go \
+	./...
 
 .DEFAULT_GOAL := build
 

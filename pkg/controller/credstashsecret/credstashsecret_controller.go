@@ -46,13 +46,15 @@ const LabelNameForSelector = "operatorInstance"
 
 var log = logf.Log.WithName("controller_credstashsecret")
 
-// Add creates a new CredstashSecret Controller and adds it to the Manager. The Manager will set fields on the Controller
+// Add creates a new CredstashSecret Controller and adds it to the Manager.
+// The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
 	reconciler, err := newReconciler(mgr)
 	if err != nil {
 		return err
 	}
+
 	return add(mgr, reconciler)
 }
 
@@ -116,6 +118,7 @@ type ReconcileCredstashSecret struct {
 // Note:
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
+//nolint funlen
 func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	reqLogger := log.WithValues("Namespace", request.Namespace, "Name", request.Name)
 	reqLogger.Info("Reconciling CredstashSecret")
@@ -167,7 +170,12 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 				},
 			}
 
-			reqLogger.Info("Deleting old secret since name has changed", "Secret.Namespace", secretToDelete.Namespace, "Secret.Name", secretToDelete.Name)
+			reqLogger.Info(
+				"Deleting old secret since name has changed",
+				"Secret.Namespace",
+				secretToDelete.Namespace,
+				"Secret.Name",
+				secretToDelete.Name)
 
 			err = r.client.Delete(context.TODO(), secretToDelete)
 			if err != nil {
@@ -190,17 +198,27 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 
 	// Secret is out of date with credstash data
 	if !reflect.DeepEqual(secret.Data, found.Data) {
-		reqLogger.Info("Updating Secret because contents have changed", "Secret.Namespace", secret.Namespace, "Secret.Name", secret.Name)
+		reqLogger.Info(
+			"Updating Secret because contents have changed",
+			"Secret.Namespace",
+			secret.Namespace,
+			"Secret.Name",
+			secret.Name)
+
 		err = r.client.Update(context.TODO(), secret)
 		if err != nil {
 			return reconcile.Result{}, err
-		} else {
-			return reconcile.Result{}, nil
 		}
+		return reconcile.Result{}, nil
 	}
 
 	// Secret already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Secret already exists and is up to date", "Secret.Namespace", found.Namespace, "Secret.Name", found.Name)
+	reqLogger.Info(
+		"Skip reconcile: Secret already exists and is up to date",
+		"Secret.Namespace",
+		found.Namespace,
+		"Secret.Name",
+		found.Name)
 	return reconcile.Result{}, nil
 }
 
@@ -229,6 +247,7 @@ func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSe
 }
 
 // setupPredicateFuncs makes sure that we only watch resources that match the correct label selector that we want
+// nolint funlen
 func setupPredicateFuncs() predicate.Funcs {
 	return predicate.Funcs{
 		CreateFunc: func(e event.CreateEvent) bool {
