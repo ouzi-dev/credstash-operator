@@ -33,6 +33,10 @@ presubmits:
             - make
           args:
             - lint
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: 1
   - name: helm-chart-lint
     context: helm-chart-lint
     decorate: true
