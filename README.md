@@ -66,7 +66,7 @@ spec:
   # List of secrets from credstash to add to the body of the secret 
   secrets:
       # The key in credstash to fetch. (Required)
-    - key: georgi2
+    - key: test-secret
       # The dynamoDB table that contains the credstash secrets (Optional. Defaults to credential-store)
       table: credential-store
       # The version of the secret in credstash for the provided key (Optional.Defaults to the latest version)
