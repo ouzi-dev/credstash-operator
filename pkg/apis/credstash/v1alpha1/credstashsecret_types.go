@@ -5,6 +5,7 @@ import (
 )
 
 type CredstashSecretDef struct {
+	Name    string `json:"name,omitempty"`
 	Key     string `json:"key,omitempty"`
 	Table   string `json:"table,omitempty"`
 	Version string `json:"version,omitempty"`

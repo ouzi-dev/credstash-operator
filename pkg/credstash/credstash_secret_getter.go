@@ -39,6 +39,11 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(
 			table = defaultCredstashTable
 		}
 
+		mapKey := v.Name
+		if mapKey == "" {
+			mapKey = v.Key
+		}
+
 		if v.Version == "" {
 			creds, err := unicreds.GetHighestVersionSecret(aws.String(table), v.Key, ecryptionContext)
 			if err != nil {
@@ -47,7 +52,7 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(
 				return nil, err
 			}
 
-			secretsMap[v.Key] = []byte(creds.Secret)
+			secretsMap[mapKey] = []byte(creds.Secret)
 		} else {
 			formattedVersion, err := formatCredstashVersion(v.Version)
 			if err != nil {
@@ -63,7 +68,7 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(
 				return nil, err
 			}
 
-			secretsMap[v.Key] = []byte(creds.Secret)
+			secretsMap[mapKey] = []byte(creds.Secret)
 		}
 	}
 
