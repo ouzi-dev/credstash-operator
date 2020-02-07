@@ -12,6 +12,7 @@ This controller will go and fetch credstash keys as specified in the CRD spec an
 * If a CredstashSecret CRd gets deleted, the controller will delete the underlying managed Secret.
 
 ### Using the operator
+
 Once configured submitting a CredstashSecret custom resource like below will create a secret from the credstash keys specified
 ```yaml
 apiVersion: credstash.ouzi.tech/v1alpha1
@@ -32,6 +33,31 @@ spec:
       table: credential-store
       # version: the version of the secret in credstash for the provided key (Optional.Defaults to the latest version)
       version: 1
+```
+
+To see the credstash secrets in the cluster, just run:
+`kubectl get credstashsecrets --all-namespaces`
+and you will get a list of the credstashs secrets and the kubernetes secret being managed
+
+
+```
+NAMESPACE        NAME                                           SECRET
+cert-manager     clouddns-dns01-solver-svc-acct                 clouddns-dns01-solver-svc-acct
+oauth-proxy      github-oauth-secret                            github-oauth-secret
+prow-test-pods   aws-dms-creds                                  aws-dms-creds
+prow-test-pods   aws-ouzi-creds                                 aws-ouzi-creds
+prow-test-pods   gcs-credentials                                gcs-credentials
+prow-test-pods   github-ssh-key                                 github-ssh-key
+prow-test-pods   github-token                                   github-token
+prow-test-pods   ouzi-bot-dockerconfig                          ouzi-bot-dockerconfig
+prow-test-pods   ouzidev-cannon-prow-gcloud-service-account     ouzidev-cannon-prow-gcloud-service-account
+prow-test-pods   ouzidev-cannon-prow-gke-kubeconfig             ouzidev-cannon-prow-gke-kubeconfig
+prow-test-pods   terraform-ouzidev-aws-service-account          terraform-ouzidev-aws-service-account
+prow             github-ssh-key                                 github-ssh-key
+prow             github-token                                   github-token
+prow             oauth-config                                   oauth-config
+prow             prow-bucket-gcs-credentials                    prow-bucket-gcs-credentials-2
+prow             slack-token                                    slack-token  
 ```
 
 
