@@ -37,14 +37,13 @@ spec:
 
 To see the credstash secrets in the cluster, just run:
 `kubectl get credstashsecrets --all-namespaces`
-and you will get a list of the credstashs secrets and the kubernetes secret being managed
+and you will get a list of the credstash secrets and the kubernetes secret being managed
 
 
 ```
 NAMESPACE        NAME                                           SECRET
 cert-manager     clouddns-dns01-solver-svc-acct                 clouddns-dns01-solver-svc-acct
 oauth-proxy      github-oauth-secret                            github-oauth-secret
-prow-test-pods   aws-dms-creds                                  aws-dms-creds
 prow-test-pods   aws-ouzi-creds                                 aws-ouzi-creds
 prow-test-pods   gcs-credentials                                gcs-credentials
 prow-test-pods   github-ssh-key                                 github-ssh-key
