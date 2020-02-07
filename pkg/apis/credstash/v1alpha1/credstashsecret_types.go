@@ -33,6 +33,7 @@ type CredstashSecretStatus struct {
 // CredstashSecret is the Schema for the credstashsecrets API
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:path=credstashsecrets,scope=Namespaced
+// +kubebuilder:printcolumn:name="Secret",type="string",JSONPath=".status.name",description="The managed secret"
 type CredstashSecret struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

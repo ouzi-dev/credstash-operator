@@ -158,6 +158,7 @@ generate: setup
 	    -p ./pkg/apis/credstash/v1alpha1 \
 	    -h ./hack/boilerplate.go.txt -r "-"
 	@go generate ./...
+	@cp deploy/crds/credstash.ouzi.tech_credstashsecrets_crd.yaml deploy/helm/credstash-operator/crds/crds.yaml
 
 CHART_NAME ?= credstash-operator
 CHART_VERSION ?= 0.0.0
