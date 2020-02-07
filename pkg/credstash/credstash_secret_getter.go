@@ -47,7 +47,7 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(
 				return nil, err
 			}
 
-			secretsMap[v.Key] = []byte(creds.Secret)
+			secretsMap[v.Name] = []byte(creds.Secret)
 		} else {
 			formattedVersion, err := formatCredstashVersion(v.Version)
 			if err != nil {
@@ -63,7 +63,7 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecretDefs(
 				return nil, err
 			}
 
-			secretsMap[v.Key] = []byte(creds.Secret)
+			secretsMap[v.Name] = []byte(creds.Secret)
 		}
 	}
 
