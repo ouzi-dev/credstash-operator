@@ -65,10 +65,12 @@ spec:
   name: example
   # List of secrets from credstash to add to the body of the secret 
   secrets:
-      # The key in credstash to fetch. (Required)
+      # key: the key in credstash to fetch. (Required)
     - key: test-secret
-      # The dynamoDB table that contains the credstash secrets (Optional. Defaults to credential-store)
+      # name: the name of the resulting data element in the k8s secret (Optional. Defaults to the credstash key)
+      name: renamed-test-secret
+      # table: the dynamoDB table that contains the credstash secrets (Optional. Defaults to credential-store)
       table: credential-store
-      # The version of the secret in credstash for the provided key (Optional.Defaults to the latest version)
+      # version: the version of the secret in credstash for the provided key (Optional.Defaults to the latest version)
       version: 1
 ```
