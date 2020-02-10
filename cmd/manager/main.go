@@ -8,6 +8,8 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/ouzi-dev/credstash-operator/pkg/env"
+
 	"github.com/ouzi-dev/credstash-operator/pkg/flags"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
@@ -96,9 +98,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	operatorName, err := k8sutil.GetOperatorName()
+	if err != nil {
+		log.Info("No operator name specified. Defaulting to: credstash-operator")
+		operatorName = "credstash-operator"
+	}
+
+	lockName := fmt.Sprintf("%s-%s", operatorName, "lock")
+
 	ctx := context.TODO()
 	// Become the leader before proceeding
-	err = leader.Become(ctx, "credstash-operator-lock")
+	err = leader.Become(ctx, lockName)
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
@@ -148,7 +158,12 @@ func main() {
 	}
 
 	// Add the Metrics Service
-	addMetrics(ctx, cfg, namespace)
+	serviceMonitorNamespace, err := env.GetServiceMonitorNamespace()
+	if err != nil {
+		log.Error(err, "Error getting service Monitor namespace")
+	} else {
+		addMetrics(ctx, cfg, serviceMonitorNamespace)
+	}
 
 	log.Info("Starting the Cmd.")
 
