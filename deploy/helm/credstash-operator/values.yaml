@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: quay.io/ouzi/credstash-operator
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 nameOverride: ""
