@@ -12,6 +12,7 @@ spec:
   template:
     metadata:
       labels:
+        name: {{ include "credstash-operator.fullname" . }}
         {{- include "credstash-operator.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "credstash-operator.serviceAccountName" . }}
@@ -26,6 +27,12 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+              protocol: TCP
+            - name: http-metrics
+              containerPort: 8383
+              protocol: TCP
+            - name: cr-metrics
+              containerPort: 8686
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -43,12 +50,16 @@ spec:
           - name: WATCH_NAMESPACE
             value: {{ .Values.namespaceToWatch }}
 {{- end }}
+          - name: SERVICE_MONITOR_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           - name: POD_NAME
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
           - name: OPERATOR_NAME
-            value: "credstash-operator"
+            value: {{ include "credstash-operator.fullname" . }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
