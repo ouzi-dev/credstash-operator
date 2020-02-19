@@ -9,7 +9,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/operator-framework/operator-sdk v0.15.1
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.0
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
 	k8s.io/api v0.17.2
 	k8s.io/apimachinery v0.17.2
