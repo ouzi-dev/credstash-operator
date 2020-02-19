@@ -107,3 +107,18 @@ helm upgrade --install credstash https://github.com/ouzi-dev/credstash-operator/
     --set awsCredentials.secretName=aws-credentials
 ``` 
 Where ${VERSION} is the version you want to install
+
+### Multi-Tenancy
+
+The operator can monitor CRDs that have:
+* a specific label with `operatorInstance=SOMETHING`
+* are within a specific namespace
+ 
+This allows you to have multiple instances of the operator running even within the same namespace.
+
+A use case for that is that you wish to fetch secrets from different AWS Accounts within a specific namespace.
+
+To do that, set the `operatorInstance` and `namespaceToWatch` fields in helm. 
+The operator will only watch CredstashSecrets that have labels with `operatorInstance=SOMETHING` and are in the specific namespace specified.
+
+**Note that if you deploy the operator without either `operatorInstance` and `namespaceToWatch`  then it will attempt to read all CRDs.  **
