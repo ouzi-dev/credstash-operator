@@ -121,4 +121,4 @@ A use case for that is that you wish to fetch secrets from different AWS Account
 To do that, set the `operatorInstance` and `namespaceToWatch` fields in helm. 
 The operator will only watch CredstashSecrets that have labels with `operatorInstance=SOMETHING` and are in the specific namespace specified.
 
-**Note that if you deploy the operator without either `operatorInstance` and `namespaceToWatch`  then it will attempt to read all CRDs.  **
+**Note that if you deploy the operator without either `operatorInstance` or `namespaceToWatch` then it will process all CRDs.**
