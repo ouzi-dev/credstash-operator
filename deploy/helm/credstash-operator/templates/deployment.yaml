@@ -23,6 +23,10 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          args:
+{{- if .Values.operatorInstance }}
+            - --selector-label={{ .Values.operatorInstance }}
+{{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

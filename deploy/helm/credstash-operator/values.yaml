@@ -14,6 +14,9 @@ fullnameOverride: ""
 
 # Specifies which namespace to watch for CRDs defaults to all namespaces
 namespaceToWatch:
+# Specifies which operatorInstance to filter the CRDs - defaults to all CRDs. 
+# Use this if you wish to deploy multiple controllers, each using a different AWS config for example
+operatorInstance: 
 
 awsCredentials:
   create: false
