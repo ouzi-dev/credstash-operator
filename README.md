@@ -110,7 +110,13 @@ Where ${VERSION} is the version you want to install
 
 ### Multi-Tenancy
 
-The operator can monitor CRDs with a specific label. This allows you to have multiple instances of the operator running even within the same namespace.
+The operator can monitor CRDs that have:
+* a specific label with `operatorInstance=SOMETHING`
+* are within a specific namespace
+ 
+This allows you to have multiple instances of the operator running even within the same namespace.
 
-A use case for that is that you wish to fetch secrets from different AWS Accounts. To do that, set the `operatorInstance` field in helm to a suitable name. 
-The operator will only watch CredstashSecrets that have labels with key `operatorInstance` and value whatever you set as `operatorInstance` in Helm.
+A use case for that is that you wish to fetch secrets from different AWS Accounts within a specific namespace.
+
+To do that, set the `operatorInstance` and `namespaceToWatch` fields in helm. 
+The operator will only watch CredstashSecrets that have labels with `operatorInstance=SOMETHING` and are in the specific namespace specified.
