@@ -4,18 +4,18 @@ go 1.13
 
 require (
 	github.com/apex/log v1.1.1 // indirect
-	github.com/aws/aws-sdk-go v1.28.14
+	github.com/aws/aws-sdk-go v1.29.7
 	github.com/golang/mock v1.4.0
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
-	github.com/operator-framework/operator-sdk v0.15.1
+	github.com/operator-framework/operator-sdk v0.15.2
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
-	k8s.io/api v0.17.2
-	k8s.io/apimachinery v0.17.2
+	k8s.io/api v0.17.3
+	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20191107075043-30be4d16710a
-	sigs.k8s.io/controller-runtime v0.4.0
+	sigs.k8s.io/controller-runtime v0.5.0
 )
 
 // Pinned to kubernetes-1.17.0
