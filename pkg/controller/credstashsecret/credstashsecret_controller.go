@@ -197,7 +197,7 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 	}
 
 	// Secret is out of date with credstash data
-	if !reflect.DeepEqual(secret.Data, found.Data) {
+	if !reflect.DeepEqual(secret, found) {
 		reqLogger.Info(
 			"Updating Secret because contents have changed",
 			"Secret.Namespace",
