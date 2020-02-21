@@ -93,7 +93,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	err = c.Watch(&source.Kind{Type: &corev1.Secret{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &credstashv1alpha1.CredstashSecret{},
-	})
+	}, pred)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 	}
 
 	// Secret is out of date with credstash data
-	if !reflect.DeepEqual(secret.Data, found.Data) {
+	if !reflect.DeepEqual(secret, found) {
 		reqLogger.Info(
 			"Updating Secret because contents have changed",
 			"Secret.Namespace",
@@ -239,6 +239,7 @@ func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSe
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName,
 			Namespace: cr.Namespace,
+			Labels:    cr.GetLabels(),
 		},
 		Data: credstashSecretsValueMap,
 	}
