@@ -16,7 +16,10 @@ fullnameOverride: ""
 namespaceToWatch:
 # Specifies which operatorInstance to filter the CRDs - defaults to all CRDs. 
 # Use this if you wish to deploy multiple controllers, each using a different AWS config for example
-operatorInstance: 
+operatorInstance:
+
+# Specifies whether to turn on verbose logs
+verboseLogging: false
 
 awsCredentials:
   create: false

@@ -27,6 +27,9 @@ spec:
 {{- if .Values.operatorInstance }}
             - --selector-label={{ .Values.operatorInstance }}
 {{- end }}
+{{- if .Values.verboseLogging }}
+            - --zap-level 1
+{{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
