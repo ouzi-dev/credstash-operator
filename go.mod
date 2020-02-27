@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/apex/log v1.1.1 // indirect
 	github.com/aws/aws-sdk-go v1.29.7
-	github.com/golang/mock v1.4.0
+	github.com/golang/mock v1.4.1
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/operator-framework/operator-sdk v0.15.2
 	github.com/spf13/pflag v1.0.5
