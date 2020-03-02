@@ -140,7 +140,6 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 	// Define a new Secret object
 	secret, err := r.secretForCR(instance)
 	if err != nil {
-		reqLogger.Error(err, "Failed fetching secret from credstash")
 		return reconcile.Result{}, err
 	}
 
