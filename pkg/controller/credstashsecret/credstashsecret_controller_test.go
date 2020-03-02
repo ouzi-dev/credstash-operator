@@ -87,6 +87,7 @@ var tests = []testReconcileItem{
 				Namespace: namespace,
 			},
 			Data: credstashGetterReturn,
+			Type: corev1.SecretTypeOpaque,
 		},
 	},
 	{
@@ -115,6 +116,7 @@ var tests = []testReconcileItem{
 			Data: map[string][]byte{
 				"differentKey": []byte("differentValue"),
 			},
+			Type: corev1.SecretTypeOpaque,
 		},
 		credstashError: nil,
 		expectedResultSecret: &corev1.Secret{
@@ -123,6 +125,7 @@ var tests = []testReconcileItem{
 				Namespace: namespace,
 			},
 			Data: credstashGetterReturn,
+			Type: corev1.SecretTypeOpaque,
 		},
 	},
 	{
@@ -157,6 +160,7 @@ var tests = []testReconcileItem{
 				Namespace: namespace,
 			},
 			Data: credstashGetterReturn,
+			Type: corev1.SecretTypeOpaque,
 		},
 	},
 	{
@@ -183,6 +187,7 @@ var tests = []testReconcileItem{
 				Namespace: namespace,
 			},
 			Data: credstashGetterReturn,
+			Type: corev1.SecretTypeOpaque,
 		},
 	},
 	{
@@ -218,6 +223,7 @@ var tests = []testReconcileItem{
 				Namespace: namespace,
 			},
 			Data: credstashGetterReturn,
+			Type: corev1.SecretTypeOpaque,
 		},
 	},
 	{
@@ -253,6 +259,35 @@ var tests = []testReconcileItem{
 				Namespace: namespace,
 			},
 			Data: credstashGetterReturn,
+			Type: corev1.SecretTypeOpaque,
+		},
+	},
+	{
+		testName: "Custom secret type",
+		customResource: &credstashv1alpha1.CredstashSecret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: credstashv1alpha1.CredstashSecretSpec{
+				SecretName: secretName,
+				Secrets: []credstashv1alpha1.CredstashSecretDef{
+					{
+						Key: credstashKey,
+					},
+				},
+				SecretType: corev1.SecretTypeDockerConfigJson,
+			},
+		},
+		existsingSecret: nil,
+		credstashError:  nil,
+		expectedResultSecret: &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: namespace,
+			},
+			Data: credstashGetterReturn,
+			Type: corev1.SecretTypeDockerConfigJson,
 		},
 	},
 }
@@ -319,6 +354,7 @@ func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
 			} else {
 				assert.Equal(t, testData.expectedResultSecret.Data, secret.Data)
 				assert.Equal(t, testData.expectedResultSecret.Name, secret.Name)
+				assert.Equal(t, testData.expectedResultSecret.Type, secret.Type)
 
 				updatedCR := &credstashv1alpha1.CredstashSecret{}
 				err = cl.Get(context.TODO(), req.NamespacedName, updatedCR)

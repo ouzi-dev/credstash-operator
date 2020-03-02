@@ -51,6 +51,8 @@ spec:
                     type: string
                 type: object
               type: array
+            type:
+              type: string
           type: object
         status:
           description: CredstashSecretStatus defines the observed state of CredstashSecret

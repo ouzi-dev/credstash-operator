@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -15,6 +16,7 @@ type CredstashSecretDef struct {
 type CredstashSecretSpec struct {
 	SecretName string               `json:"name,omitempty"`
 	Secrets    []CredstashSecretDef `json:"secrets,omitempty"`
+	SecretType corev1.SecretType    `json:"type,omitempty"`
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
