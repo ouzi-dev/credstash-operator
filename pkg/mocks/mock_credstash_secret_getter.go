@@ -5,10 +5,9 @@
 package mocks
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	v1alpha1 "github.com/ouzi-dev/credstash-operator/pkg/apis/credstash/v1alpha1"
+	reflect "reflect"
 )
 
 // MockSecretGetter is a mock of SecretGetter interface

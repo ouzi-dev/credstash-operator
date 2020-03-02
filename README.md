@@ -33,6 +33,8 @@ spec:
       table: credential-store
       # version: the version of the secret in credstash for the provided key (Optional.Defaults to the latest version)
       version: 1
+  # type: the type of the resulting kubernetes secret (Optional. Defaults to Opaque)
+  type: Opaque
 ```
 
 To see the credstash secrets in the cluster, just run:
@@ -57,6 +59,30 @@ prow             github-token                                   github-token
 prow             oauth-config                                   oauth-config
 prow             prow-bucket-gcs-credentials                    prow-bucket-gcs-credentials-2
 prow             slack-token                                    slack-token  
+```
+
+#### Custom secret types
+If you want to create a secret that is not of type `Opaque`, provide a different secret type in .spec.type
+For example a dockerconfigjson secret would look as follows:
+```yaml
+apiVersion: credstash.ouzi.tech/v1alpha1
+kind: CredstashSecret
+metadata:
+  name: dockerconfigjson
+  namespace: test
+spec:
+  # Name of the target secret (Optional. Defaults to the CR name)
+  name: dockerconfigjson
+  # List of secrets from credstash to add to the body of the secret 
+  secrets:
+      # key: the key in credstash to fetch. (Required)
+    - key: docker_secret
+      # name: the name of the resulting data element in the k8s secret (Optional. Defaults to the credstash key)
+      name: .dockerconfigjson
+      # table: the dynamoDB table that contains the credstash secrets (Optional. Defaults to credential-store)
+      table: credential-store
+  # type: the type of the resulting kubernetes secret (Optional. Defaults to Opaque)
+  type: kubernetes.io/dockerconfigjson
 ```
 
 

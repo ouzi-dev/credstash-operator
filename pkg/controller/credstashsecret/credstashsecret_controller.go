@@ -234,6 +234,12 @@ func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSe
 		secretName = cr.Name
 	}
 
+	// default to Opaque if not provided
+	secretType := cr.Spec.SecretType
+	if secretType == "" {
+		secretType = corev1.SecretTypeOpaque
+	}
+
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName,
@@ -241,6 +247,7 @@ func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSe
 			Labels:    cr.GetLabels(),
 		},
 		Data: credstashSecretsValueMap,
+		Type: secretType,
 	}
 
 	return secret, nil
