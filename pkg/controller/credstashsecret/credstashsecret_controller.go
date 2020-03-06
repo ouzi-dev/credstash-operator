@@ -22,6 +22,7 @@ import (
 
 	"github.com/ouzi-dev/credstash-operator/pkg/aws"
 	"github.com/ouzi-dev/credstash-operator/pkg/credstash"
+	event_consts "github.com/ouzi-dev/credstash-operator/pkg/event"
 	"github.com/ouzi-dev/credstash-operator/pkg/flags"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -32,6 +33,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -42,7 +44,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-const LabelNameForSelector = "operatorInstance"
+const (
+	LabelNameForSelector = "operatorInstance"
+	ControllerName = "credstashsecret-controller"
+)
 
 var log = logf.Log.WithName("controller_credstashsecret")
 
@@ -65,17 +70,20 @@ func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 		return nil, err
 	}
 
+	eventRecorder := mgr.GetEventRecorderFor(ControllerName)
+
 	return &ReconcileCredstashSecret{
 		client:                mgr.GetClient(),
 		scheme:                mgr.GetScheme(),
-		credstashSecretGetter: credstash.NewSecretGetter(awsSession),
+		credstashSecretGetter: credstash.NewSecretGetter(awsSession, eventRecorder),
+		eventRecorder:		   eventRecorder,
 	}, nil
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
 func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	// Create a new controller
-	c, err := controller.New("credstashsecret-controller", mgr, controller.Options{Reconciler: r})
+	c, err := controller.New(ControllerName, mgr, controller.Options{Reconciler: r})
 	if err != nil {
 		return err
 	}
@@ -111,6 +119,7 @@ type ReconcileCredstashSecret struct {
 	client                client.Client
 	scheme                *runtime.Scheme
 	credstashSecretGetter credstash.SecretGetter
+	eventRecorder 		  record.EventRecorder
 }
 
 // Reconcile reads that state of the cluster for a CredstashSecret object and makes changes based on the state read
@@ -133,6 +142,7 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 			// Return and don't requeue
 			return reconcile.Result{}, nil
 		}
+		r.eventRecorder.Eventf(instance, event_consts.TypeWarning, event_consts.ReasonErrGeneric, err.Error())
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
@@ -145,6 +155,7 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 
 	// Set CredstashSecret instance as the owner and controller
 	if err := controllerutil.SetControllerReference(instance, secret, r.scheme); err != nil {
+		r.eventRecorder.Eventf(instance, event_consts.TypeWarning, event_consts.ReasonErrGeneric, err.Error())
 		return reconcile.Result{}, err
 	}
 
@@ -157,6 +168,8 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 		reqLogger.Info("Creating a new Secret", "Secret.Namespace", secret.Namespace, "Secret.Name", secret.Name)
 		err = r.client.Create(context.TODO(), secret)
 		if err != nil {
+			r.eventRecorder.Eventf(instance, event_consts.TypeWarning, event_consts.ReasonErrCreateSecret, event_consts.MessageFailedCreatingSecret,
+				secret.Name, secret.Namespace, err.Error())
 			return reconcile.Result{}, err
 		}
 
@@ -178,20 +191,29 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 
 			err = r.client.Delete(context.TODO(), secretToDelete)
 			if err != nil {
+				r.eventRecorder.Eventf(instance, event_consts.TypeWarning, event_consts.ReasonErrDeleteOldSecret, event_consts.MessageFailedDeletingOldSecret,
+					secret.Name, secret.Namespace, err.Error())
 				return reconcile.Result{}, err
 			}
+			r.eventRecorder.Eventf(instance, event_consts.TypeNormal, event_consts.ReasonSuccessDeleteOldSecret, event_consts.MessageSuccessDeletingOldSecret,
+				secret.Name, secret.Namespace)
+
 		}
 
 		instance.Status.SecretName = secret.Name
 
 		err = r.client.Status().Update(context.TODO(), instance)
 		if err != nil {
+			r.eventRecorder.Eventf(instance, event_consts.TypeWarning, event_consts.ReasonErrGeneric, err.Error())
 			return reconcile.Result{}, err
 		}
 
 		// Secret created successfully - don't requeue
+		r.eventRecorder.Eventf(instance, event_consts.TypeNormal, event_consts.ReasonSuccessCreateSecret, event_consts.MessageSuccessCreatingSecret,
+			secret.Name, secret.Namespace)
 		return reconcile.Result{}, nil
 	} else if err != nil {
+		r.eventRecorder.Eventf(instance, event_consts.TypeWarning, event_consts.ReasonErrGeneric, err.Error())
 		return reconcile.Result{}, err
 	}
 
@@ -206,8 +228,12 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 
 		err = r.client.Update(context.TODO(), secret)
 		if err != nil {
+			r.eventRecorder.Eventf(instance, event_consts.TypeWarning, event_consts.ReasonErrUpdateSecret, event_consts.MessageFailedUpdatingSecret,
+				secret.Name, secret.Namespace, err.Error())
 			return reconcile.Result{}, err
 		}
+		r.eventRecorder.Eventf(instance, event_consts.TypeNormal, event_consts.ReasonSuccessUpdateSecret, event_consts.MessageSuccessUpdatingSecret,
+			secret.Name, secret.Namespace)
 		return reconcile.Result{}, nil
 	}
 
@@ -223,7 +249,7 @@ func (r *ReconcileCredstashSecret) Reconcile(request reconcile.Request) (reconci
 
 // secretForCR returns a secret the same name/namespace as the cr
 func (r *ReconcileCredstashSecret) secretForCR(cr *credstashv1alpha1.CredstashSecret) (*corev1.Secret, error) {
-	credstashSecretsValueMap, err := r.credstashSecretGetter.GetCredstashSecretsForCredstashSecretDefs(cr.Spec.Secrets)
+	credstashSecretsValueMap, err := r.credstashSecretGetter.GetCredstashSecretsForCredstashSecret(cr)
 	if err != nil {
 		return nil, err
 	}

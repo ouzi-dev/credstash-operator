@@ -5,10 +5,9 @@
 package mocks
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	v1alpha1 "github.com/ouzi-dev/credstash-operator/pkg/apis/credstash/v1alpha1"
+	reflect "reflect"
 )
 
 // MockSecretGetter is a mock of SecretGetter interface
@@ -34,17 +33,17 @@ func (m *MockSecretGetter) EXPECT() *MockSecretGetterMockRecorder {
 	return m.recorder
 }
 
-// GetCredstashSecretsForCredstashSecretDefs mocks base method
-func (m *MockSecretGetter) GetCredstashSecretsForCredstashSecretDefs(arg0 []v1alpha1.CredstashSecretDef) (map[string][]byte, error) {
+// GetCredstashSecretsForCredstashSecret mocks base method
+func (m *MockSecretGetter) GetCredstashSecretsForCredstashSecret(arg0 *v1alpha1.CredstashSecret) (map[string][]byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCredstashSecretsForCredstashSecretDefs", arg0)
+	ret := m.ctrl.Call(m, "GetCredstashSecretsForCredstashSecret", arg0)
 	ret0, _ := ret[0].(map[string][]byte)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetCredstashSecretsForCredstashSecretDefs indicates an expected call of GetCredstashSecretsForCredstashSecretDefs
-func (mr *MockSecretGetterMockRecorder) GetCredstashSecretsForCredstashSecretDefs(arg0 interface{}) *gomock.Call {
+// GetCredstashSecretsForCredstashSecret indicates an expected call of GetCredstashSecretsForCredstashSecret
+func (mr *MockSecretGetterMockRecorder) GetCredstashSecretsForCredstashSecret(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCredstashSecretsForCredstashSecretDefs", reflect.TypeOf((*MockSecretGetter)(nil).GetCredstashSecretsForCredstashSecretDefs), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCredstashSecretsForCredstashSecret", reflect.TypeOf((*MockSecretGetter)(nil).GetCredstashSecretsForCredstashSecret), arg0)
 }
