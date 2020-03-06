@@ -6,27 +6,30 @@ const (
 	TypeWarning = "Warning"
 
 	// Event Reasons
+	//nolint
 	ReasonErrFetchingCredstashSecret = "ErrCredstash"
-	ReasonErrGeneric = "ErrGeneric"
+	ReasonErrGeneric                 = "ErrGeneric"
 
-	ReasonErrCreateSecret = "ErrCreateSecret"
+	ReasonErrCreateSecret     = "ErrCreateSecret"
 	ReasonSuccessCreateSecret = "SuccessCreateSecret"
 
-	ReasonErrDeleteOldSecret = "ErrDeleteOldSecret"
+	//nolint
+	ReasonErrDeleteOldSecret     = "ErrDeleteOldSecret"
 	ReasonSuccessDeleteOldSecret = "SuccessDeleteOldSecret"
 
-	ReasonErrUpdateSecret = "ErrUpdateSecret"
+	ReasonErrUpdateSecret     = "ErrUpdateSecret"
 	ReasonSuccessUpdateSecret = "SuccessUpdateSecret"
 
 	// Event Messages
 	MessageFailedFetchingCredstashSecret = "Failed fetching credstash secret. Key: %s. Version: %s. Table: %s. Error %s"
 
-	MessageFailedCreatingSecret = "Failed creating secret. Name: %s. Namespace: %s. Error %s"
+	MessageFailedCreatingSecret  = "Failed creating secret. Name: %s. Namespace: %s. Error %s"
 	MessageSuccessCreatingSecret = "Successfully created secret. Name: %s. Namespace: %s"
 
-	MessageFailedDeletingOldSecret = "Failed deleting old secret. Name: %s. Namespace: %s. Error %s"
+	//nolint
+	MessageFailedDeletingOldSecret  = "Failed deleting old secret. Name: %s. Namespace: %s. Error %s"
 	MessageSuccessDeletingOldSecret = "Successfully deleted old secret. Name: %s. Namespace: %s"
 
-	MessageFailedUpdatingSecret = "Failed updating secret. Name: %s. Namespace: %s. Error %s"
+	MessageFailedUpdatingSecret  = "Failed updating secret. Name: %s. Namespace: %s. Error %s"
 	MessageSuccessUpdatingSecret = "Successfully updated secret. Name: %s. Namespace: %s"
 )

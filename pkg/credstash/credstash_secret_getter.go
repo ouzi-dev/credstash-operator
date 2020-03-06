@@ -52,10 +52,13 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 		if v.Version == "" {
 			creds, err := unicreds.GetHighestVersionSecret(aws.String(table), v.Key, ecryptionContext)
 			if err != nil {
-				h.eventRecorder.Eventf(credstashSecret, event.TypeWarning, event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
+				h.eventRecorder.Eventf(
+					credstashSecret, event.TypeWarning,
+					event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
 					v.Key, "latest", table, err.Error())
 				log.Error(err, "Failed fetching secret from credstash",
 					"Secret.Key", v.Key, "Secret.Version", "latest", "Secret.Table", table)
+
 				return nil, err
 			}
 
@@ -63,7 +66,9 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 		} else {
 			formattedVersion, err := formatCredstashVersion(v.Version)
 			if err != nil {
-				h.eventRecorder.Eventf(credstashSecret, event.TypeWarning, event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
+				h.eventRecorder.Eventf(
+					credstashSecret, event.TypeWarning,
+					event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
 					v.Key, v.Version, table, err.Error())
 				log.Error(err, "Failed formatting secret version",
 					"Secret.Key", v.Key, "Secret.Version", v.Version, "Secret.Table", table)
@@ -72,7 +77,9 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 
 			creds, err := unicreds.GetSecret(aws.String(table), v.Key, formattedVersion, ecryptionContext)
 			if err != nil {
-				h.eventRecorder.Eventf(credstashSecret, event.TypeWarning, event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
+				h.eventRecorder.Eventf(
+					credstashSecret, event.TypeWarning,
+					event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
 					v.Key, formattedVersion, table, err.Error())
 				log.Error(err, "Failed fetching secret from credstash",
 					"Secret.Key", v.Key, "Secret.Version", formattedVersion, "Secret.Table", table)

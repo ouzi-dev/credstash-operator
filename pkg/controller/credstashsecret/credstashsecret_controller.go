@@ -46,7 +46,7 @@ import (
 
 const (
 	LabelNameForSelector = "operatorInstance"
-	ControllerName = "credstashsecret-controller"
+	ControllerName       = "credstashsecret-controller"
 )
 
 var log = logf.Log.WithName("controller_credstashsecret")
@@ -76,7 +76,7 @@ func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 		client:                mgr.GetClient(),
 		scheme:                mgr.GetScheme(),
 		credstashSecretGetter: credstash.NewSecretGetter(awsSession, eventRecorder),
-		eventRecorder:		   eventRecorder,
+		eventRecorder:         eventRecorder,
 	}, nil
 }
 
@@ -119,7 +119,7 @@ type ReconcileCredstashSecret struct {
 	client                client.Client
 	scheme                *runtime.Scheme
 	credstashSecretGetter credstash.SecretGetter
-	eventRecorder 		  record.EventRecorder
+	eventRecorder         record.EventRecorder
 }
 
 // Reconcile reads that state of the cluster for a CredstashSecret object and makes changes based on the state read
