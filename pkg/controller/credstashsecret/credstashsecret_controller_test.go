@@ -5,6 +5,8 @@ import (
 	"errors"
 	"testing"
 
+	"k8s.io/client-go/tools/record"
+
 	"github.com/golang/mock/gomock"
 	"github.com/ouzi-dev/credstash-operator/pkg/mocks"
 	"github.com/stretchr/testify/assert"
@@ -22,20 +24,24 @@ import (
 )
 
 const (
-	errorString    = "an error has occurred"
-	name           = "credstashCR"
-	namespace      = "credstash"
-	credstashKey   = "key1"
-	credstashValue = "value1"
-	secretName     = "specialName"
+	credstashSecretKind = "CredstashSecret"
+	//nolint
+	credstashSecretAPIVersion = "credstash.ouzi.tech/v1alpha1"
+	errorString               = "an error has occurred"
+	name                      = "credstashCR"
+	namespace                 = "credstash"
+	credstashKey              = "key1"
+	credstashValue            = "value1"
+	secretName                = "specialName"
 )
 
 type testReconcileItem struct {
 	testName             string
 	customResource       *credstashv1alpha1.CredstashSecret
-	existsingSecret      *corev1.Secret
+	existingSecret       *corev1.Secret
 	credstashError       error
 	expectedResultSecret *corev1.Secret
+	expectedEvents       []string
 }
 
 var (
@@ -48,6 +54,10 @@ var tests = []testReconcileItem{
 	{
 		testName: "Credstash error",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -60,13 +70,18 @@ var tests = []testReconcileItem{
 				},
 			},
 		},
-		existsingSecret:      nil,
+		existingSecret:       nil,
 		credstashError:       errors.New(errorString),
 		expectedResultSecret: nil,
+		expectedEvents:       []string{},
 	},
 	{
 		testName: "No existing secret",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -79,8 +94,8 @@ var tests = []testReconcileItem{
 				},
 			},
 		},
-		existsingSecret: nil,
-		credstashError:  nil,
+		existingSecret: nil,
+		credstashError: nil,
 		expectedResultSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
@@ -89,10 +104,17 @@ var tests = []testReconcileItem{
 			Data: credstashGetterReturn,
 			Type: corev1.SecretTypeOpaque,
 		},
+		expectedEvents: []string{
+			"Normal SuccessCreateSecret Successfully created secret. Name: credstashCR. Namespace: credstash",
+		},
 	},
 	{
 		testName: "Existing different data secret",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -108,7 +130,11 @@ var tests = []testReconcileItem{
 				SecretName: name,
 			},
 		},
-		existsingSecret: &corev1.Secret{
+		existingSecret: &corev1.Secret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -127,10 +153,17 @@ var tests = []testReconcileItem{
 			Data: credstashGetterReturn,
 			Type: corev1.SecretTypeOpaque,
 		},
+		expectedEvents: []string{
+			"Normal SuccessUpdateSecret Successfully updated secret. Name: credstashCR. Namespace: credstash",
+		},
 	},
 	{
 		testName: "Existing identical data secret",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -146,7 +179,7 @@ var tests = []testReconcileItem{
 				SecretName: name,
 			},
 		},
-		existsingSecret: &corev1.Secret{
+		existingSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -161,11 +194,18 @@ var tests = []testReconcileItem{
 			},
 			Data: credstashGetterReturn,
 			Type: corev1.SecretTypeOpaque,
+		},
+		expectedEvents: []string{
+			"Normal SuccessUpdateSecret Successfully updated secret. Name: credstashCR. Namespace: credstash",
 		},
 	},
 	{
 		testName: "Name specified and no existing secret",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -179,8 +219,8 @@ var tests = []testReconcileItem{
 				},
 			},
 		},
-		existsingSecret: nil,
-		credstashError:  nil,
+		existingSecret: nil,
+		credstashError: nil,
 		expectedResultSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
@@ -189,10 +229,17 @@ var tests = []testReconcileItem{
 			Data: credstashGetterReturn,
 			Type: corev1.SecretTypeOpaque,
 		},
+		expectedEvents: []string{
+			"Normal SuccessCreateSecret Successfully created secret. Name: specialName. Namespace: credstash",
+		},
 	},
 	{
 		testName: "Name specified and existing secret with same name and data",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -209,7 +256,7 @@ var tests = []testReconcileItem{
 				SecretName: secretName,
 			},
 		},
-		existsingSecret: &corev1.Secret{
+		existingSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
 				Namespace: namespace,
@@ -225,10 +272,17 @@ var tests = []testReconcileItem{
 			Data: credstashGetterReturn,
 			Type: corev1.SecretTypeOpaque,
 		},
+		expectedEvents: []string{
+			"Normal SuccessUpdateSecret Successfully updated secret. Name: specialName. Namespace: credstash",
+		},
 	},
 	{
 		testName: "Name specified and existing secret with different name",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -245,7 +299,7 @@ var tests = []testReconcileItem{
 				SecretName: secretName,
 			},
 		},
-		existsingSecret: &corev1.Secret{
+		existingSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "different name",
 				Namespace: namespace,
@@ -261,10 +315,17 @@ var tests = []testReconcileItem{
 			Data: credstashGetterReturn,
 			Type: corev1.SecretTypeOpaque,
 		},
+		expectedEvents: []string{
+			"Normal SuccessCreateSecret Successfully created secret. Name: specialName. Namespace: credstash",
+		},
 	},
 	{
 		testName: "Custom secret type",
 		customResource: &credstashv1alpha1.CredstashSecret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       credstashSecretKind,
+				APIVersion: credstashSecretAPIVersion,
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -279,8 +340,8 @@ var tests = []testReconcileItem{
 				SecretType: corev1.SecretTypeDockerConfigJson,
 			},
 		},
-		existsingSecret: nil,
-		credstashError:  nil,
+		existingSecret: nil,
+		credstashError: nil,
 		expectedResultSecret: &corev1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      secretName,
@@ -288,6 +349,9 @@ var tests = []testReconcileItem{
 			},
 			Data: credstashGetterReturn,
 			Type: corev1.SecretTypeDockerConfigJson,
+		},
+		expectedEvents: []string{
+			"Normal SuccessCreateSecret Successfully created secret. Name: specialName. Namespace: credstash",
 		},
 	},
 }
@@ -310,14 +374,23 @@ func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
 				testData.customResource,
 			}
 
-			if testData.existsingSecret != nil {
-				objs = append(objs, testData.existsingSecret)
+			if testData.existingSecret != nil {
+				objs = append(objs, testData.existingSecret)
 			}
 
 			// Create a fake client to mock API calls.
 			cl := fake.NewFakeClientWithScheme(s, objs...)
 			// Create a ReconcileCredstashSecret object with the scheme and fake client.
-			r := &ReconcileCredstashSecret{client: cl, scheme: s, credstashSecretGetter: mockCredstashSecretGetter}
+
+			// Create a fake event recorder
+			er := record.NewFakeRecorder(10)
+
+			r := &ReconcileCredstashSecret{
+				client:                cl,
+				scheme:                s,
+				credstashSecretGetter: mockCredstashSecretGetter,
+				eventRecorder:         er,
+			}
 
 			// Mock request to simulate Reconcile() being called on an event for a
 			// watched resource .
@@ -329,7 +402,7 @@ func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
 			}
 
 			mockCredstashSecretGetter.
-				EXPECT().GetCredstashSecretsForCredstashSecretDefs(testData.customResource.Spec.Secrets).
+				EXPECT().GetCredstashSecretsForCredstashSecret(testData.customResource).
 				Return(credstashGetterReturn, testData.credstashError).
 				Times(1)
 
@@ -361,6 +434,24 @@ func TestReconcileCredstashSecret_Reconcile(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, testData.expectedResultSecret.Name, updatedCR.Status.SecretName)
 			}
+
+			assert.Equal(t, testData.expectedEvents, collectEvents(er.Events))
 		})
 	}
+}
+
+func collectEvents(source <-chan string) []string {
+	done := false
+	events := make([]string, 0)
+
+	for !done {
+		select {
+		case event := <-source:
+			events = append(events, event)
+		default:
+			done = true
+		}
+	}
+
+	return events
 }
