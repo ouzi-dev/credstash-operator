@@ -11,7 +11,7 @@ presubmits:
       containers:
         - name: "test"
           imagePullPolicy: IfNotPresent
-          image: quay.io/ouzi/go-builder:1.13.7
+          image: quay.io/ouzi/go-builder:1.14.0
           command:
             - make
           args:
@@ -28,7 +28,7 @@ presubmits:
       containers:
         - name: "lint"
           imagePullPolicy: IfNotPresent
-          image: quay.io/ouzi/go-builder:1.13.7
+          image: quay.io/ouzi/go-builder:1.14.0
           command:
             - make
           args:
@@ -51,7 +51,7 @@ presubmits:
       containers:
         - name: "helm-chart-lint"
           imagePullPolicy: IfNotPresent
-          image: quay.io/ouzi/helm:v3.0.1
+          image: quay.io/ouzi/helm:v3.1.1
           command:
             - make
           args:
@@ -70,7 +70,7 @@ presubmits:
       containers:
         - name: "helm-chart-validate"
           imagePullPolicy: IfNotPresent
-          image: quay.io/ouzi/helm:v3.0.1
+          image: quay.io/ouzi/helm:v3.1.1
           command:
             - make
           args:
@@ -89,7 +89,7 @@ presubmits:
       containers:
         - name: "helm-chart-package"
           imagePullPolicy: IfNotPresent
-          image: quay.io/ouzi/helm:v3.0.1
+          image: quay.io/ouzi/helm:v3.1.1
           command:
             - make
           args:
@@ -110,7 +110,7 @@ presubmits:
       containers:
         - name: "test-semrelease-dryrun"
           imagePullPolicy: IfNotPresent
-          image: quay.io/ouzi/toolbox:0.1.2
+          image: quay.io/ouzi/toolbox:0.1.16
           command:
             - make
           args:
