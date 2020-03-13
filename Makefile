@@ -36,6 +36,8 @@ DOCKER_REPO := quay.io/ouzi/credstash-operator
 
 TMP_VERSION := $(GIT_SHORT_COMMIT)
 
+GCLOUD_KEY_FILE := /etc/google-service-account/service-account.json
+
 ifndef VERSION
 ifeq ($(GIT_DIRTY), clean)
 ifdef GIT_TAG
@@ -138,11 +140,13 @@ dist:
 
 .PHONY: docker-build
 docker-build: clean info
-	@docker build -t $(DOCKER_REPO):${VERSION} -f build/Dockerfile .
+	@gcloud builds submit --config build/cloudbuild-build.yaml \
+        				--substitutions=_TAG_VERSION=$(VERSION),_QUAY_REPO=$(DOCKER_REPO) .
 
 .PHONY: docker-push
-docker-push: docker-build
-	@docker push $(DOCKER_REPO):${VERSION}
+docker-push: clean info
+	@gcloud builds submit --config build/cloudbuild-push.yaml \
+    				--substitutions=_TAG_VERSION=$(VERSION),_QUAY_REPO=$(DOCKER_REPO) .
 
 .PHONY: clean
 clean: helm-clean
@@ -209,3 +213,11 @@ semantic-release-dry-run:
 
 package-lock.json: package.json
 	@npm install
+
+.PHONY: init-gcloud-cli
+init-gcloud-cli:
+ifneq ("$(wildcard $(GCLOUD_KEY_FILE))","")
+	gcloud auth activate-service-account --key-file=$(GCLOUD_KEY_FILE)
+else
+	@echo $(GCLOUD_KEY_FILE) not present
+endif
