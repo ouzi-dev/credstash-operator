@@ -1,0 +1,20 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    id: "login"
+    entrypoint: "bash"
+    args: ["-c", "docker login quay.io --username=$$QUAY_USERNAME --password=$$QUAY_TOKEN"]
+    secretEnv: ["QUAY_USERNAME","QUAY_TOKEN"]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', '${_QUAY_REPO}:${_TAG_VERSION}',
+      '-t', '${_QUAY_REPO}:latest',
+      '-f', 'build/Dockerfile',
+      '.'
+    ]
+    waitFor: ['login']
+secrets:
+  - kmsKeyName: "projects/ouzidev-testinfra-252513/locations/europe-west4/keyRings/test-infra/cryptoKeys/build"
+    secretEnv:
+      QUAY_USERNAME: "CiQAyEpfYvO3SdKEGua39aGoMcPViY6juEDsYlY54JOA2GTtQyESMgDP2uhIGZcHeYDKLNWYDUn19/CoeXB+ccsi8eB46bve5fZy4Fp3fqGAz93yPuljTrpi"
+      QUAY_TOKEN: "CiQAyEpfYo4sk1hRr+YJOQ3Pt07zfOJgzUXQbKExCI5xEiP0P8gSagDP2uhIF/jOw6z37omW3lAA8SVkzxS/rIXBNhj2O2vLnKiE64aHs+uy5YQdIbgMnCmjXz0ky64HJfNiWF/a9poOnIZv0vgAhOU9+/6ul3DfSeKyHbzc+0aawDmyqiX/acqhmDbURHTvatI="

@@ -110,7 +110,7 @@ presubmits:
       containers:
         - name: "test-semrelease-dryrun"
           imagePullPolicy: IfNotPresent
-          image: quay.io/ouzi/toolbox:0.1.16
+          image: quay.io/ouzi/toolbox:0.1.17
           command:
             - make
           args:
@@ -119,32 +119,19 @@ postsubmits:
   - name: credstash-operator-release
     labels:
       preset-semantic-release: "true"
-      preset-docker: "true"
+      preset-gcloud-testinfra-prow: "true"
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     decorate: true
     max_concurrency: 1
     branches:
       - master
     spec:
-      nodeSelector:
-        group_name: image-builder
-      tolerations:
-        - key: "imagebuilderonly"
-          value: "true"
-          operator: "Equal"
-          effect: "PreferNoSchedule"
       containers:
         - name: "release"
           imagePullPolicy: Always
-          image: quay.io/ouzi/kube-dind:18.09
+          image: quay.io/ouzi/toolbox:0.1.17
           command:
-            - runner.sh
-          args:
             - make
+          args:
+            - init-gcloud-cli
             - semantic-release
-          securityContext:
-            privileged: true
-          resources:
-            requests:
-              memory: "2Gi"
-              cpu: 1
