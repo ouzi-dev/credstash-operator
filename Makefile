@@ -29,7 +29,7 @@ HAS_GO_IMPORTS := $(shell command -v goimports;)
 HAS_GO_MOCKGEN := $(shell command -v mockgen;)
 HAS_GOLANGCI_LINT := $(shell command -v golangci-lint;)
 
-GOLANGCI_LINT_VERSION := v1.23.1
+GOLANGCI_LINT_VERSION := v1.24.0
 GOLANGCI_VERSION_CHECK := $(shell golangci-lint --version | grep -oh $(GOLANGCI_LINT_VERSION);)
 
 DOCKER_REPO := quay.io/ouzi/credstash-operator
@@ -221,3 +221,12 @@ ifneq ("$(wildcard $(GCLOUD_KEY_FILE))","")
 else
 	@echo $(GCLOUD_KEY_FILE) not present
 endif
+
+.PHONY: install-npm-check-updates
+install-npm-check-updates:
+	npm install npm-check-updates
+
+.PHONY: update-npm-dependencies
+update-npm-dependencies: install-npm-check-updates
+	ncu -u
+	npm install

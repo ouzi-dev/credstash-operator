@@ -7,14 +7,15 @@
   },
   "author": "givanov",
   "devDependencies": {
-    "@semantic-release/commit-analyzer": "^6.3.0",
-    "@semantic-release/exec": "^3.3.2",
-    "@semantic-release/github": "^5.2.10",
-    "@semantic-release/release-notes-generator": "^7.1.4",
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/exec": "^5.0.0",
+    "@semantic-release/github": "^7.0.5",
+    "@semantic-release/release-notes-generator": "^9.0.1",
     "fstream": "^1.0.12",
-    "semantic-release": "^16.0.2",
-    "tar": "^4.4.9",
-    "env-ci": "4.1.1"
+    "semantic-release": "^17.0.4",
+    "tar": "^6.0.1",
+    "env-ci": "5.0.2",
+    "minimist": "^1.2.5"
   },
   "release": {
     "plugins": [
@@ -78,5 +79,8 @@
   },
   "publishConfig": {
     "access": "restricted"
+  },
+  "dependencies": {
+    "npm-check-updates": "^4.1.2"
   }
 }
