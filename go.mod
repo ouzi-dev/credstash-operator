@@ -11,7 +11,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.5.1
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
-	k8s.io/api v0.17.4
+	k8s.io/api v0.18.1
 	k8s.io/apimachinery v0.17.4
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c
