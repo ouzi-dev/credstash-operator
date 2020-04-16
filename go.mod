@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go v1.30.7
 	github.com/golang/mock v1.4.3
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
-	github.com/operator-framework/operator-sdk v0.16.0
+	github.com/operator-framework/operator-sdk v0.17.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.5.1
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
