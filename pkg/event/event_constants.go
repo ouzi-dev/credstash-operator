@@ -21,7 +21,7 @@ const (
 	ReasonSuccessUpdateSecret = "SuccessUpdateSecret"
 
 	// Event Messages
-	MessageFailedFetchingCredstashSecret = "Failed fetching credstash secret. Key: %s. Version: %s. Table: %s. Error %s"
+	MessageFailedFetchingCredstashSecret = "Failed fetching credstash secret. Key: %s. Version: %s. Table: %s. Context: %s. Error %s"
 
 	MessageFailedCreatingSecret  = "Failed creating secret. Name: %s. Namespace: %s. Error %s"
 	MessageSuccessCreatingSecret = "Successfully created secret. Name: %s. Namespace: %s"

@@ -35,7 +35,7 @@ func NewSecretGetter(awsSession *session.Session, eventRecorder record.EventReco
 
 func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 	credstashSecret *v1alpha1.CredstashSecret) (map[string][]byte, error) {
-	ecryptionContext := unicreds.NewEncryptionContextValue()
+	encryptionContext := unicreds.NewEncryptionContextValue()
 	secretsMap := map[string][]byte{}
 
 	for _, v := range credstashSecret.Spec.Secrets {
@@ -49,15 +49,17 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 			mapKey = v.Key
 		}
 
+		encryptionContext.Set(v.Context)
+
 		if v.Version == "" {
-			creds, err := unicreds.GetHighestVersionSecret(aws.String(table), v.Key, ecryptionContext)
+			creds, err := unicreds.GetHighestVersionSecret(aws.String(table), v.Key, encryptionContext)
 			if err != nil {
 				h.eventRecorder.Eventf(
 					credstashSecret, event.TypeWarning,
 					event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
-					v.Key, "latest", table, err.Error())
+					v.Key, "latest", table, v.Context, err.Error())
 				log.Error(err, "Failed fetching secret from credstash",
-					"Secret.Key", v.Key, "Secret.Version", "latest", "Secret.Table", table)
+					"Secret.Key", v.Key, "Secret.Version", "latest", "Secret.Table", table, "Secret.Context", v.Context)
 
 				return nil, err
 			}
@@ -69,20 +71,20 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 				h.eventRecorder.Eventf(
 					credstashSecret, event.TypeWarning,
 					event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
-					v.Key, v.Version, table, err.Error())
+					v.Key, v.Version, table, v.Context, err.Error())
 				log.Error(err, "Failed formatting secret version",
-					"Secret.Key", v.Key, "Secret.Version", v.Version, "Secret.Table", table)
+					"Secret.Key", v.Key, "Secret.Version", v.Version, "Secret.Table", table, "Secret.Context", v.Context)
 				return nil, err
 			}
 
-			creds, err := unicreds.GetSecret(aws.String(table), v.Key, formattedVersion, ecryptionContext)
+			creds, err := unicreds.GetSecret(aws.String(table), v.Key, formattedVersion, encryptionContext)
 			if err != nil {
 				h.eventRecorder.Eventf(
 					credstashSecret, event.TypeWarning,
 					event.ReasonErrFetchingCredstashSecret, event.MessageFailedFetchingCredstashSecret,
-					v.Key, formattedVersion, table, err.Error())
+					v.Key, formattedVersion, table, v.Context, err.Error())
 				log.Error(err, "Failed fetching secret from credstash",
-					"Secret.Key", v.Key, "Secret.Version", formattedVersion, "Secret.Table", table)
+					"Secret.Key", v.Key, "Secret.Version", formattedVersion, "Secret.Table", table, "Secret.Context", v.Context)
 				return nil, err
 			}
 
