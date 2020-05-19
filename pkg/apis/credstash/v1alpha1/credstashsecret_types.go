@@ -10,7 +10,7 @@ type CredstashSecretDef struct {
 	Key     string `json:"key,omitempty"`
 	Table   string `json:"table,omitempty"`
 	Version string `json:"version,omitempty"`
-	Context string `json:"context,omitempty"`
+	Context map[string]string `json:"context,omitempty"`
 }
 
 // CredstashSecretSpec defines the desired state of CredstashSecret

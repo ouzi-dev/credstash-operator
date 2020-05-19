@@ -35,7 +35,6 @@ func NewSecretGetter(awsSession *session.Session, eventRecorder record.EventReco
 
 func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 	credstashSecret *v1alpha1.CredstashSecret) (map[string][]byte, error) {
-	encryptionContext := unicreds.NewEncryptionContextValue()
 	secretsMap := map[string][]byte{}
 
 	for _, v := range credstashSecret.Spec.Secrets {
@@ -49,7 +48,10 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 			mapKey = v.Key
 		}
 
-		encryptionContext.Set(v.Context)
+		encryptionContext := unicreds.NewEncryptionContextValue()
+		for k,v := range v.Context {
+			encryptionContext.Set(k+":"+v)
+		}
 
 		if v.Version == "" {
 			creds, err := unicreds.GetHighestVersionSecret(aws.String(table), v.Key, encryptionContext)

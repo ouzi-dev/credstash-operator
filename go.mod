@@ -3,8 +3,8 @@ module github.com/ouzi-dev/credstash-operator
 go 1.14
 
 require (
-	github.com/apex/log v1.1.1 // indirect
-	github.com/aws/aws-sdk-go v1.30.7
+	github.com/apex/log v1.1.4 // indirect
+	github.com/aws/aws-sdk-go v1.31.0
 	github.com/bombsimon/wsl/v2 v2.2.0 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -17,6 +17,7 @@ require (
 	github.com/gostaticanalysis/analysisutil v0.0.3 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/mapstructure v1.3.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/operator-framework/operator-sdk v0.16.0
