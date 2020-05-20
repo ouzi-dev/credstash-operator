@@ -33,6 +33,7 @@ func NewSecretGetter(awsSession *session.Session, eventRecorder record.EventReco
 	}
 }
 
+//nolint
 func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 	credstashSecret *v1alpha1.CredstashSecret) (map[string][]byte, error) {
 	secretsMap := map[string][]byte{}

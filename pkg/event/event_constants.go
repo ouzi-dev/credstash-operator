@@ -20,6 +20,7 @@ const (
 	ReasonErrUpdateSecret     = "ErrUpdateSecret"
 	ReasonSuccessUpdateSecret = "SuccessUpdateSecret"
 
+	//nolint
 	// Event Messages
 	MessageFailedFetchingCredstashSecret = "Failed fetching credstash secret. Key: %s. Version: %s. Table: %s. Context: %s. Error %s"
 
