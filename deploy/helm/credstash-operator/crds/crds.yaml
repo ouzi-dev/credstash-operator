@@ -49,6 +49,9 @@ spec:
                     type: string
                   version:
                     type: string
+                  context:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
                 type: object
               type: array
             type:
