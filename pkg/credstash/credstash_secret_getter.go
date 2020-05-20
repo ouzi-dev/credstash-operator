@@ -49,8 +49,11 @@ func (h *secretGetter) GetCredstashSecretsForCredstashSecret(
 		}
 
 		encryptionContext := unicreds.NewEncryptionContextValue()
+
 		for k, v := range v.Context {
-			encryptionContext.Set(k + ":" + v)
+			if err := encryptionContext.Set(k + ":" + v); err != nil {
+				return nil, err
+			}
 		}
 
 		if v.Version == "" {
