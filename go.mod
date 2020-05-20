@@ -20,7 +20,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/mapstructure v1.3.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
-	github.com/operator-framework/operator-sdk v0.16.0
+	github.com/operator-framework/operator-sdk v0.17.1
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/sourcegraph/go-diff v0.5.2 // indirect
