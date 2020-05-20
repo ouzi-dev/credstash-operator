@@ -6,10 +6,11 @@ import (
 )
 
 type CredstashSecretDef struct {
-	Name    string `json:"name,omitempty"`
-	Key     string `json:"key,omitempty"`
-	Table   string `json:"table,omitempty"`
-	Version string `json:"version,omitempty"`
+	Name    string            `json:"name,omitempty"`
+	Key     string            `json:"key,omitempty"`
+	Table   string            `json:"table,omitempty"`
+	Version string            `json:"version,omitempty"`
+	Context map[string]string `json:"context,omitempty"`
 }
 
 // CredstashSecretSpec defines the desired state of CredstashSecret

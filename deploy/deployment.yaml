@@ -15,7 +15,7 @@ spec:
       serviceAccountName: credstash-operator
       containers:
         - name: credstash-operator
-          image: quay.io/ouzi/credstash-operator:v0.0.1
+          image: quay.io/ouzi/credstash-operator:latest
           command:
             - credstash-operator
           imagePullPolicy: Always
@@ -23,10 +23,14 @@ spec:
             - secretRef:
                 name: aws-credentials
           env:
-          #  - name: WATCH_NAMESPACE
-          #    valueFrom:
-          #      fieldRef:
-          #        fieldPath: metadata.namespace
+#            - name: WATCH_NAMESPACE
+#              valueFrom:
+#                fieldRef:
+#                  fieldPath: metadata.namespace
+            - name: SERVICE_MONITOR_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             - name: POD_NAME
               valueFrom:
                 fieldRef:

@@ -31,8 +31,12 @@ spec:
       name: renamed-test-secret
       # table: the dynamoDB table that contains the credstash secrets (Optional. Defaults to credential-store)
       table: credential-store
-      # version: the version of the secret in credstash for the provided key (Optional.Defaults to the latest version)
+      # version: the version of the secret in credstash for the provided key (Optional. Defaults to the latest version)
       version: 1
+      # context: key value pairs to the encryption context (Optional)
+      context:
+        key1: value1
+        key2: value2
   # type: the type of the resulting kubernetes secret (Optional. Defaults to Opaque)
   type: Opaque
 ```
@@ -81,6 +85,10 @@ spec:
       name: .dockerconfigjson
       # table: the dynamoDB table that contains the credstash secrets (Optional. Defaults to credential-store)
       table: credential-store
+      # context: key value pairs to the encryption context (Optional)
+      context:
+        key1: value1
+        key2: value2
   # type: the type of the resulting kubernetes secret (Optional. Defaults to Opaque)
   type: kubernetes.io/dockerconfigjson
 ```
