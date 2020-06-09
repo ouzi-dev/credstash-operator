@@ -1,3 +1,12 @@
+---
+name: Pull Request
+about: Suggest a new feature for Credstash Operator
+title: ''
+labels: blocked-needs-validation, enhancement
+assignees: ''
+
+---
+
 # Pull Request Template
 
 Ensure that the Pull Request title starts with:
