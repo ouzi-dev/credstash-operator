@@ -27,10 +27,10 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Credstash Operator version used**
-The Credstash operator version from the [releases section](https://github.com/ouzi-dev/credstash-operator/releases)
+The Credstash operator version from the [releases section](https://github.com/ouzi-dev/credstash-operator/releases).
 
 **Method of deployment**
-Helm chart or YAML? If YAML please provide sample yaml objects used to deploy
+Helm chart or YAML? If YAML please provide sample yaml objects used to deploy.
 
 **Kubernetes API Version**
 The version of the Kubernetes API where the Operator is deployed.

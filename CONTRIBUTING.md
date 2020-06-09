@@ -6,7 +6,7 @@
 
 * If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/ouzi-dev/credstash-operator/issues/new). Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
 
-* For a more detailed description of what should a bug report contain, have a look at the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md)
+* For a more detailed description of what should a bug report contain, have a look at the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md).
 
 #### **Do you want to add an enhancement?**
 
