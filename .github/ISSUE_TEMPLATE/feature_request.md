@@ -14,7 +14,7 @@ A clear and concise description of the feature.
 How would the new interaction with Credstash Operator look like? E.g.
 1. What are the prerequisites for this?
 2. User starts up Credstash Operator using the --new-feature flag
-3. User submits CrestashSecret object with extra parameter new-feature
+3. User submits CredstashSecret object with extra parameter new-feature
 4. New Secret created using the new feature
 
 Feel free to add a diagram if that helps explaining things.
