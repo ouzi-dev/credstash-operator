@@ -4,6 +4,7 @@ Ensure that the Pull Request title starts with:
   - `feat: ` if its a major feature,
   - `fix: ` if its a minor one,
   - `doc: ` if its documentation related.
+Note: if you are still working on the changeset but wish to share with us your progress so far, please prepend `WIP` on your title.
 
 ## Description
 
