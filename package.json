@@ -50,7 +50,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "make docker-push helm-package VERSION=v${nextRelease.version}"
+          "prepareCmd": "make docker-push helm-package helm-push VERSION=v${nextRelease.version}"
         }
       ],
       [

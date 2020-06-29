@@ -55,8 +55,6 @@ ifneq ($(BINARY_VERSION),)
 	LDFLAGS += -X $(BASE_BUILD_PATH)/version.Version=${BINARY_VERSION}
 endif
 
-export PATH := ./bin:$(PATH)
-
 .PHONY: setup-lint
 setup-lint:
 	@echo "bootstrap lint..."
@@ -168,6 +166,10 @@ CHART_NAME ?= credstash-operator
 CHART_VERSION ?= 0.0.0
 CHART_PATH ?= deploy/helm
 CHART_DIST ?= $(CHART_PATH)/$(CHART_NAME)/dist
+HELM_PLUGIN_PUSH_URL := https://github.com/chartmuseum/helm-push
+HELM_PLUGIN_PUSH_VERSION := v0.8.1
+HELM_REPO_URL := https://charts.ouzi.io
+HELM_REPO_NAME := ouzi
 
 .PHONY: helm-clean
 helm-clean:
@@ -200,6 +202,15 @@ helm-package: helm-clean
 .PHONY: helm-lint
 helm-lint:
 	helm lint $(CHART_PATH)/$(CHART_NAME)
+
+.PHONY: helm-push-init
+helm-push-init:
+	@helm plugin install $(HELM_PLUGIN_PUSH_URL) --version $(HELM_PLUGIN_PUSH_VERSION) || echo "Plugin already installed - nothing to do"
+	@helm repo add $(HELM_REPO_NAME) $(HELM_REPO_URL)
+	@helm repo update
+
+helm-push: helm-push-init
+	@helm push $(CHART_DIST)/$(CHART_NAME)-$(CHART_VERSION).tgz $(HELM_REPO_NAME)
 
 .PHONY: semantic-release
 semantic-release:
