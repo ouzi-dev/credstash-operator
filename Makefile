@@ -210,7 +210,7 @@ helm-push-init:
 	@helm repo update
 
 helm-push: helm-push-init
-	@helm push $(CHART_DIST)/$(CHART_NAME)-$(CHART_VERSION).tgz $(HELM_REPO_NAME)
+	@helm push $(CHART_DIST)/$(CHART_NAME)-$(VERSION).tgz $(HELM_REPO_NAME)
 
 .PHONY: semantic-release
 semantic-release:
