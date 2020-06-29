@@ -104,6 +104,7 @@ presubmits:
     max_concurrency: 1
     labels:
       preset-semantic-release: "true"
+      preset-ouzi-helm-push: "true"
     trigger: "(?m)semrelease-dryrun( please)?"
     rerun_command: "semrelease-dryrun"
     spec:
@@ -120,6 +121,7 @@ postsubmits:
     labels:
       preset-semantic-release: "true"
       preset-gcloud-testinfra-prow: "true"
+      preset-ouzi-helm-push: "true"
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     decorate: true
     max_concurrency: 1

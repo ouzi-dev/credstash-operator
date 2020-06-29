@@ -142,6 +142,15 @@ helm upgrade --install credstash https://github.com/ouzi-dev/credstash-operator/
 ``` 
 Where ${VERSION} is the version you want to install
 
+#### Using the Ouzi helm repo
+```
+helm repo add ouzi https://charts.ouzi.io
+helm repo update
+helm upgrade --install credstash ouzi/credstash-operator \
+    --version ${VERSION}
+    -n credstash \
+    --set awsCredentials.secretName=aws-credentials
+```
 ### Multi-Tenancy
 
 The operator can monitor CRDs that have:
