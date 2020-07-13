@@ -18,6 +18,11 @@ package credstashsecret
 
 import (
 	"context"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8sConfig "sigs.k8s.io/controller-runtime/pkg/client/config"
+
+	"github.com/ouzi-dev/credstash-operator/pkg/config"
+	"github.com/ouzi-dev/credstash-operator/pkg/env"
 	"reflect"
 
 	"github.com/ouzi-dev/credstash-operator/pkg/aws"
@@ -34,7 +39,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -66,6 +70,35 @@ func Add(mgr manager.Manager) error {
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 	awsSession, err := aws.GetAwsSessionFromEnv()
+
+	if flags.AwsConfigSecret != "" {
+		clientConfig, err := k8sConfig.GetConfig()
+		if err != nil {
+			return  nil, err
+		}
+
+		clientSet, err := client.New(clientConfig, client.Options{})
+		if err != nil {
+			return  nil, err
+		}
+
+		secretConfigFetcher := config.NewAwsSecretGetter(clientSet)
+		podNamespace, err := env.GetOperatorPodNamespace()
+		if err != nil {
+			return  nil, err
+		}
+
+		awsCreds, err := secretConfigFetcher.GetAwsConfig(flags.AwsConfigSecret, podNamespace)
+		if err != nil {
+			return  nil, err
+		}
+
+		awsSession, err = aws.GetAwsSession(awsCreds.Region, awsCreds.AwsAccessKeyID, awsCreds.AwsSecretAccessKey)
+		if err != nil {
+			return  nil, err
+		}
+	}
+
 	if err != nil {
 		return nil, err
 	}
