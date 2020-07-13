@@ -19,7 +19,7 @@ spec:
           command:
             - credstash-operator
           args:
-            - aws-config-secret
+            - --aws-config-secret
             - aws-credentials
           imagePullPolicy: Always
           envFrom:
