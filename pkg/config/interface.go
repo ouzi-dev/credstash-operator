@@ -1,8 +1,8 @@
 package config
 
 type AwsConfig struct {
-	Region string
-	AwsAccessKeyID string
+	Region             string
+	AwsAccessKeyID     string
 	AwsSecretAccessKey string
 }
 

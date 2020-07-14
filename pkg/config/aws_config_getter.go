@@ -3,16 +3,18 @@ package config
 import (
 	"context"
 	"fmt"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
-	awsRegionField = "AWS_REGION"
+	awsRegionField      = "AWS_REGION"
 	awsAccessKeyIDField = "AWS_ACCESS_KEY_ID"
+	//nolint
 	awsSecretAccessKeyField = "AWS_SECRET_ACCESS_KEY"
-	validationError = "secret %s in namespace %s does not contain valid config. Field %s is missing"
+	validationError         = "secret %s in namespace %s does not contain valid config. Field %s is missing"
 )
 
 type k8sAwsConfigGetter struct {
@@ -30,6 +32,7 @@ func (k *k8sAwsConfigGetter) GetAwsConfig(secretName string, namespace string) (
 	}
 	// Fetch the Secret
 	secret := &v1.Secret{}
+
 	err := k.client.Get(context.TODO(), namespacedName, secret)
 	if err != nil {
 		return nil, err
@@ -41,10 +44,9 @@ func (k *k8sAwsConfigGetter) GetAwsConfig(secretName string, namespace string) (
 	}
 
 	return &AwsConfig{
-		Region: string(secret.Data[awsRegionField]),
-		AwsAccessKeyID: string(secret.Data[awsAccessKeyIDField]),
+		Region:             string(secret.Data[awsRegionField]),
+		AwsAccessKeyID:     string(secret.Data[awsAccessKeyIDField]),
 		AwsSecretAccessKey: string(secret.Data[awsSecretAccessKeyField]),
-
 	}, nil
 }
 
@@ -63,5 +65,3 @@ func validateAwsConfigSecret(secret *v1.Secret) error {
 
 	return nil
 }
-
-

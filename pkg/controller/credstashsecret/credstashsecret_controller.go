@@ -18,12 +18,14 @@ package credstashsecret
 
 import (
 	"context"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	k8sConfig "sigs.k8s.io/controller-runtime/pkg/client/config"
 
+	"reflect"
+
 	"github.com/ouzi-dev/credstash-operator/pkg/config"
 	"github.com/ouzi-dev/credstash-operator/pkg/env"
-	"reflect"
 
 	"github.com/ouzi-dev/credstash-operator/pkg/aws"
 	"github.com/ouzi-dev/credstash-operator/pkg/credstash"
@@ -88,6 +90,7 @@ func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 		}
 
 		secretConfigFetcher := config.NewAwsSecretGetter(clientSet)
+
 		podNamespace, err := env.GetOperatorPodNamespace()
 		if err != nil {
 			return nil, err
@@ -102,7 +105,7 @@ func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 	if awsCreds != nil {
 		awsSession, err = aws.GetAwsSession(awsCreds.Region, awsCreds.AwsAccessKeyID, awsCreds.AwsSecretAccessKey)
 		if err != nil {
-			return  nil, err
+			return nil, err
 		}
 	}
 
