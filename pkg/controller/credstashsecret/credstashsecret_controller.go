@@ -70,37 +70,40 @@ func Add(mgr manager.Manager) error {
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 	awsSession, err := aws.GetAwsSessionFromEnv()
+	if err != nil {
+		return nil, err
+	}
+
+	awsCreds := &config.AwsConfig{}
 
 	if flags.AwsConfigSecret != "" {
 		clientConfig, err := k8sConfig.GetConfig()
 		if err != nil {
-			return  nil, err
+			return nil, err
 		}
 
 		clientSet, err := client.New(clientConfig, client.Options{})
 		if err != nil {
-			return  nil, err
+			return nil, err
 		}
 
 		secretConfigFetcher := config.NewAwsSecretGetter(clientSet)
 		podNamespace, err := env.GetOperatorPodNamespace()
 		if err != nil {
-			return  nil, err
+			return nil, err
 		}
 
-		awsCreds, err := secretConfigFetcher.GetAwsConfig(flags.AwsConfigSecret, podNamespace)
+		awsCreds, err = secretConfigFetcher.GetAwsConfig(flags.AwsConfigSecret, podNamespace)
 		if err != nil {
-			return  nil, err
+			log.Error(err, "Failed reading aws credential secret. Proceeding with environment config")
 		}
+	}
 
+	if awsCreds != nil {
 		awsSession, err = aws.GetAwsSession(awsCreds.Region, awsCreds.AwsAccessKeyID, awsCreds.AwsSecretAccessKey)
 		if err != nil {
 			return  nil, err
 		}
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	eventRecorder := mgr.GetEventRecorderFor(ControllerName)
