@@ -18,15 +18,15 @@ spec:
           image: quay.io/ouzi/credstash-operator:latest
           command:
             - credstash-operator
+          args:
+            - --aws-config-secret
+            - aws-credentials
           imagePullPolicy: Always
-          envFrom:
-            - secretRef:
-                name: aws-credentials
           env:
-#            - name: WATCH_NAMESPACE
-#              valueFrom:
-#                fieldRef:
-#                  fieldPath: metadata.namespace
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             - name: SERVICE_MONITOR_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -35,5 +35,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: POD_NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
             - name: OPERATOR_NAME
               value: "credstash-operator"

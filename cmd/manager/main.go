@@ -52,6 +52,11 @@ func init() {
 		"selector-label",
 		"",
 		"If provided the controller will only process CRDs that have the provided label")
+	pflag.StringVar(
+		&flags.AwsConfigSecret,
+		"aws-config-secret",
+		"",
+		"If provided the controller will load AWS credentials from the named kubernetes secret")
 }
 
 func printVersion() {
