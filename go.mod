@@ -6,7 +6,6 @@ require (
 	github.com/apex/log v1.1.4 // indirect
 	github.com/aws/aws-sdk-go v1.33.5
 	github.com/fatih/color v1.9.0 // indirect
-	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/mock v1.4.3
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
@@ -17,8 +16,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
 	golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
-	k8s.io/api v0.18.5
+	k8s.io/api v0.18.8
 	k8s.io/apimachinery v0.18.5
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
