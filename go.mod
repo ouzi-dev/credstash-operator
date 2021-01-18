@@ -14,7 +14,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/operator-framework/operator-sdk v0.19.0
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
 	golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
