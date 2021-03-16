@@ -51,9 +51,11 @@ spec:
             httpGet:
               path: /readyz
               port: http
+{{- if .Values.awsCredentials.create -}}
           envFrom:
           - secretRef:
               name: {{ include "credstash-operator.credentialsSecretName" . }}
+{{- end }}
           env:
 {{- if .Values.namespaceToWatch }}
           - name: WATCH_NAMESPACE

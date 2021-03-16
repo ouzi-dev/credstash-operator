@@ -1,11 +1,11 @@
 presubmits:
   - name: test-credstash-operator
     decorate: true
-    always_run: true
     skip_report: false
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     max_concurrency: 1
     trigger: "(?m)test( please)?"
+    run_if_changed: "(.*).go"
     rerun_command: "test"
     spec:
       containers:
@@ -18,11 +18,11 @@ presubmits:
             - test
   - name: lint-credstash-operator
     decorate: true
-    always_run: true
     skip_report: false
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     max_concurrency: 1
     trigger: "(?m)lint( please)?"
+    run_if_changed: "(.*).go"
     rerun_command: "lint"
     spec:
       containers:
