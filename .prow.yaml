@@ -1,7 +1,6 @@
 presubmits:
   - name: test-credstash-operator
     decorate: true
-    always_run: true
     skip_report: false
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     max_concurrency: 1
@@ -19,7 +18,6 @@ presubmits:
             - test
   - name: lint-credstash-operator
     decorate: true
-    always_run: true
     skip_report: false
     clone_uri: "git@github.com:ouzi-dev/credstash-operator.git"
     max_concurrency: 1
