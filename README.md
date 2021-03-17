@@ -107,6 +107,35 @@ For example running the following will create an appropriate secret in the `cred
 kubectl create secret generic aws-credentials --from-literal=AWS_ACCESS_KEY_ID=access_key --from-literal=AWS_SECRET_ACCESS_KEY=secret_access_key --from-literal=AWS_REGION=us-west-2 --namespace=credstash
 ```
 
+The IAM policy required that will enable the operator to work is:
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "kms:Decrypt"
+            ],
+            "Effect": "Allow",
+            "Resource": "${kms_key_arn}"
+        },
+        {
+            "Action": [
+                "dynamodb:GetItem",
+                "dynamodb:Query",
+                "dynamodb:Scan"
+            ],
+            "Effect": "Allow",
+            "Resource": "${dynamodb_table_arn}"
+        }
+    ]
+}
+```
+where:
+* kms_key_arn is the KMS Key ARN used for credstash
+* dynamodb_table_arn is the DynamoDb table ARN that the secrets are stored in
+
+
 ### Deploy the operator
 
 Deploy the operator dependencies:
