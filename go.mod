@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go v1.33.5
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/golang/mock v1.4.3
+	github.com/golang/mock v1.5.0
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
