@@ -18,7 +18,7 @@ require (
 	github.com/versent/unicreds v1.5.1-0.20180327234242-7135c859e003
 	golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
-	k8s.io/api v0.18.5
+	k8s.io/api v0.20.5
 	k8s.io/apimachinery v0.18.5
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
