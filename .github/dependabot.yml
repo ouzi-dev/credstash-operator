@@ -1,0 +1,40 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 99
+  ignore:
+  - dependency-name: github.com/aws/aws-sdk-go
+    versions:
+    - 1.36.31
+    - 1.37.1
+    - 1.37.10
+    - 1.37.15
+    - 1.37.20
+    - 1.37.25
+    - 1.37.30
+    - 1.37.6
+    - 1.38.1
+    - 1.38.12
+    - 1.38.17
+    - 1.38.21
+    - 1.38.7
+  - dependency-name: k8s.io/api
+    versions:
+    - 0.20.2
+    - 0.20.4
+    - 0.20.5
+  - dependency-name: k8s.io/apimachinery
+    versions:
+    - 0.20.2
+    - 0.20.4
+    - 0.20.5
+  - dependency-name: sigs.k8s.io/controller-runtime
+    versions:
+    - 0.8.1
+    - 0.8.2
+  - dependency-name: github.com/golang/mock
+    versions:
+    - 1.4.4
